@@ -112,4 +112,9 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
+userSchema.statics.isEmailTaken = async function (email, excludeUserId) {
+    const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
+    return !!user;
+};
+
 module.exports = mongoose.model('User', userSchema);

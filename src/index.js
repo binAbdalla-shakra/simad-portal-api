@@ -3,7 +3,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const errorHandler = require("../src/middlewares/errorHandler")
-const userRoutes = require('./routes/userRoutes');
+const userRoutes = require('./routes/user.routes');
+const universityRoutes = require('./routes/university.routes');
+
 
 require('dotenv').config();
 
@@ -28,6 +30,8 @@ app.use(cors({
 app.use(bodyParser.json());
 
 app.use('/api/v1/users', userRoutes);
+
+app.use('/api/v1/university', universityRoutes);
 
 
 app.use(errorHandler); // Your custom error handler
