@@ -74,7 +74,8 @@ const universitySchema = new mongoose.Schema({
         mission: String,
         vision: String,
         history: String,
-        achievements: String
+        guiding_principles: String,
+        core_values: String,
     },
     socialMedia: {
         facebook: String,
