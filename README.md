@@ -1,10 +1,11 @@
-<div style="text-align: center;">
+<p align="center">
 
-<img width="195" height="195" alt="SIMAD Logo" src="https://github.com/user-attachments/assets/29ac5846-9a59-4ccb-9df0-b42fa3273316" />
+  <img width="195" height="195" alt="SIMAD Logo" src="https://github.com/user-attachments/assets/29ac5846-9a59-4ccb-9df0-b42fa3273316" />
 
-# SIMAD University Portal API
+  # SIMAD University Portal API
 
-</div>
+</p>
+
 
 
 
