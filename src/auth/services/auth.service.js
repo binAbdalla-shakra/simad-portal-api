@@ -1,4 +1,5 @@
 const User = require('../../models/User.model');
+const { ApiError } = require('../../utils/error-handler');
 const { generateAccessToken, generateRefreshToken } = require('../../utils/tokens');
 const bcrypt = require('bcryptjs');
 
@@ -30,24 +31,24 @@ class AuthService {
         return { user, accessToken, refreshToken };
     }
 
-    async refreshAccessToken(refreshToken) {
-        const user = await User.findOne({ refreshToken });
-        if (!user) {
-            throw new Error('Invalid refresh token');
-        }
+    // async refreshAccessToken(refreshToken) {
+    //     const user = await User.findOne({ refreshToken });
+    //     if (!user) {
+    //         throw new Error('Invalid refresh token');
+    //     }
 
-        const accessToken = generateAccessToken({
-            id: user._id,
-            username: user.username,
-            roles: user.roles
-        });
+    //     const accessToken = generateAccessToken({
+    //         id: user._id,
+    //         username: user.username,
+    //         roles: user.roles
+    //     });
 
-        return { accessToken };
-    }
+    //     return { accessToken };
+    // }
 
-    async logout(userId) {
-        await User.findByIdAndUpdate(userId, { refreshToken: null });
-    }
+    // async logout(userId) {
+    //     await User.findByIdAndUpdate(userId, { refreshToken: null });
+    // }
 
     async changePassword(userId, currentPassword, newPassword) {
         const user = await User.findById(userId);

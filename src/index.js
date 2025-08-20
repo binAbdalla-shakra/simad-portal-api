@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger'); // Import the swagger spec
 const connectDB = require('./config/db');
 const errorHandler = require("../src/middlewares/errorHandler")
 const userRoutes = require('./routes/user.routes');
@@ -27,16 +29,19 @@ app.use(cors({
   // credentials: true
 }));
 
+
 app.use(bodyParser.json());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/v1/users', userRoutes);
 
 app.use('/api/v1/university', universityRoutes);
 
 
-app.use(errorHandler); // Your custom error handler
+app.use(errorHandler); // error handler
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+

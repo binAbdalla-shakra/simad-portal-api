@@ -20,17 +20,17 @@ const login = catchAsync(async (req, res) => {
     return successResponse(res, { user, accessToken, status: "success" }, 'Login successful');
 });
 
-const refreshToken = catchAsync(async (req, res) => {
-    const { refreshToken } = req.cookies;
-    const { accessToken } = await authService.refreshAccessToken(refreshToken);
-    return successResponse(res, { accessToken }, 'Token refreshed successfully');
-});
+// const refreshToken = catchAsync(async (req, res) => {
+//     const { refreshToken } = req.cookies;
+//     const { accessToken } = await authService.refreshAccessToken(refreshToken);
+//     return successResponse(res, { accessToken }, 'Token refreshed successfully');
+// });
 
-const logout = catchAsync(async (req, res) => {
-    await authService.logout(req.user.id);
-    res.clearCookie('refreshToken');
-    return successResponse(res, null, 'Logout successful', 204);
-});
+// const logout = catchAsync(async (req, res) => {
+//     await authService.logout(req.user.id);
+//     res.clearCookie('refreshToken');
+//     return successResponse(res, null, 'Logout successful', 204);
+// });
 
 const changePassword = catchAsync(async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -69,8 +69,6 @@ const updateUser = catchAsync(async (req, res) => {
 module.exports = {
     register,
     login,
-    refreshToken,
-    logout,
     changePassword,
     getUsers,
     getUserById,

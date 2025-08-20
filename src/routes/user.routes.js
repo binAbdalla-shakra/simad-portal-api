@@ -10,11 +10,8 @@ router.get('/:id', authController.getUserById);
 router.put('/:id', authController.updateUser);
 router.delete('/:id', authController.deleteUser);
 
-
-
-
-router.post('/refresh-token', authController.refreshToken);
-router.post('/logout', authenticate, authController.logout);
+// router.post('/refresh-token', authController.refreshToken);
+// router.post('/logout', authenticate, authController.logout);
 router.patch('/change-password', authenticate, authController.changePassword);
 
 module.exports = router;
