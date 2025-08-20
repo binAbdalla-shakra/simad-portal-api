@@ -12,7 +12,7 @@ SIMAD University Portal API
 
 This API serves as the backend for the SIMAD University Official Mobile App, providing endpoints to manage university data. It is built using Node.js, Express, and MongoDB, with authentication and role-based access control.
 
-Tech Stack
+#####Tech Stack#####
 
 Backend: Node.js, Express.js
 
@@ -22,6 +22,17 @@ Authentication: JWT
 
 API Documentation: Swagger
 
-Installation
+#####Installation#####
 
 Clone the repository:
+git clone https://github.com/binAbdalla-shakra/simad-portal-api.git
+
+Install dependencies:
+npm install
+
+Start the server:
+npm start
+
+#####API Documentation#####
+Swagger UI is available for testing and exploring endpoints:
+http://localhost:4000/api-docs
