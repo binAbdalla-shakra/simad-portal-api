@@ -7,6 +7,7 @@
 </div>
 
 
+
 This API serves as the backend for the SIMAD University Official Mobile App, providing endpoints to manage university data. It is built using Node.js, Express, and MongoDB, with authentication and role-based access control.
 
 #####Tech Stack#####
