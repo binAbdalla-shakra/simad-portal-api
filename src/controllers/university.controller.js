@@ -1,47 +1,41 @@
+
 const University = require('../models/University.model');
 const { successResponse, errorResponse } = require('../utils/response');
-const { ApiError } = require('../utils/error-handler');
 
-// Create University
-exports.createUniversity = async (req, res) => {
-    try {
-        const university = await University.create(req.body);
-        return successResponse(res, { university }, 'University created successfully', 201);
-    } catch (error) {
-
-        return errorResponse(res, error.message, 500);
-    }
-};
-
-// Get  University Info
+// Get university information
 exports.getUniversityInfo = async (req, res) => {
     try {
-
-        const universityInfo = await University.findOne({});
-        return successResponse(res, { universityInfo });
-    } catch (error) {
-        return errorResponse(res, error.message, 500);
-    }
-};
-
-
-// Update University
-exports.updateUniversity = async (req, res) => {
-    try {
-        const university = await University.findOneAndUpdate(
-            { slug: req.params.slug },
-            req.body,
-            { new: true, runValidators: true }
-        );
+        const university = await University.findOne({});
 
         if (!university) {
-            return errorResponse(res, 'University not found', 404);
+            return errorResponse(res, 'University information not found', 404);
         }
 
-        return successResponse(res, { university }, 'University updated successfully');
+        return successResponse(res, { university });
     } catch (error) {
-
         return errorResponse(res, error.message, 500);
     }
 };
 
+// Create or update university information
+exports.updateUniversity = async (req, res) => {
+    try {
+        let university = await University.findOne({});
+
+        if (university) {
+            // Update existing university
+            university = await University.findOneAndUpdate(
+                {},
+                req.body,
+                { new: true, runValidators: true }
+            );
+        } else {
+            // Create new university
+            university = await University.create(req.body);
+        }
+
+        return successResponse(res, { university }, 'University information updated successfully');
+    } catch (error) {
+        return errorResponse(res, error.message, 500);
+    }
+};
