@@ -11,7 +11,7 @@ exports.getAllUniversityData = async (req, res) => {
     try {
         const university = await University.findOne({});
         const whySimadItems = await WhySimad.find({ isActive: true }).sort({ order: 1 });
-        const historyItems = await History.find({ isActive: true }).sort({ order: 1 });
+        const historyItems = await History.find({ isActive: true }).sort({ year: -1 });
         const senateMembers = await Senate.find({ isActive: true }).sort({ order: 1 });
         const accreditations = await Accreditation.find({ isActive: true }).sort({ order: 1 });
 
