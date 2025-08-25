@@ -58,6 +58,11 @@ app.use('/api/v1/accreditations', require('./routes/accreditation.routes'));
 // ===============================END ABOUT UNIVERSITY ROUTES=============================================
 
 
+app.use('/api/v1/program-categories', require('./routes/ProgramController.routes'));
+
+app.use('/api/v1/schools', require('./routes/school.routes'));
+
+
 
 
 app.use(errorHandler); // error handler
