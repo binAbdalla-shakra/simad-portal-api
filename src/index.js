@@ -62,6 +62,11 @@ app.use('/api/v1/program-categories', require('./routes/ProgramController.routes
 
 app.use('/api/v1/schools', require('./routes/school.routes'));
 
+app.use('/api/v1/departments', require('./routes/department.routes'));
+app.use('/api/v1/programs', require('./routes/program.routes'));
+app.use('/api/v1/staff', require('./routes/staff.routes'));
+
+
 
 
 

@@ -37,6 +37,8 @@ const programSchema = new Schema({
     tuition: {
         domestic: Number,
         international: Number,
+        tution_fee_per_sem: Number,
+        tution_fee_per_month: Number,
         currency: {
             type: String,
             default: 'USD'

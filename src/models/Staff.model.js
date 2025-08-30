@@ -52,11 +52,6 @@ const staffSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Department'
     },
-    // Programs this staff member is associated with
-    programs: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Program'
-    }],
     // Professional Experience
     professionalExperience: [{
         position: {

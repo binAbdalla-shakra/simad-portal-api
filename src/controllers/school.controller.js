@@ -21,7 +21,7 @@ exports.getAllSchools = async (req, res) => {
         }
 
         const schools = await School.find(filter)
-            // .populate('dean', 'name title')
+            .populate('dean', 'name title')
             .populate('category', 'name')
             .sort({ order: 1 });
 
