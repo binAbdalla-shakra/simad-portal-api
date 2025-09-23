@@ -5,6 +5,9 @@ const Senate = require('../models/Senate.model');
 const Accreditation = require('../models/Accreditation.model');
 const { successResponse, errorResponse } = require('../utils/response');
 const { default: mongoose } = require('mongoose');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 // Get all university data
 exports.getAllUniversityData = async (req, res) => {
@@ -27,12 +30,58 @@ exports.getAllUniversityData = async (req, res) => {
     }
 };
 
-// Update all university data in a single transaction
+
+
+// Configure multer storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // Create uploads directory if it doesn't exist
+        const uploadDir = path.join(__dirname, '../uploads');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        // Generate unique filename
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    },
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed'));
+        }
+    }
+});
+
+
+// Update all university data in a single transaction with image uploads
 exports.updateAllUniversityData = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
+        // Use multer middleware for file uploads
+        await new Promise((resolve, reject) => {
+            upload.any()(req, res, (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
         const {
             university: universityData,
             whySimadItems,
@@ -41,25 +90,81 @@ exports.updateAllUniversityData = async (req, res) => {
             accreditations
         } = req.body;
 
+        // Parse JSON data if it's sent as string
+        const parsedUniversityData = typeof universityData === 'string' ? JSON.parse(universityData) : universityData;
+        const parsedWhySimadItems = typeof whySimadItems === 'string' ? JSON.parse(whySimadItems) : whySimadItems;
+        const parsedHistoryItems = typeof historyItems === 'string' ? JSON.parse(historyItems) : historyItems;
+        const parsedSenateMembers = typeof senateMembers === 'string' ? JSON.parse(senateMembers) : senateMembers;
+        const parsedAccreditations = typeof accreditations === 'string' ? JSON.parse(accreditations) : accreditations;
+
+        // Get base URL based on environment
+        const baseUrl = process.env.NODE_ENV === 'production'
+            ? process.env.BASE_URL_PROD
+            : process.env.BASE_URL_DV;
+
+        // Process uploaded files
+        const uploadedFiles = req.files || [];
+
+        // Function to find file by field name
+        const findFile = (fieldName, index = '') => {
+            const searchName = index !== '' ? `${fieldName}[${index}]` : fieldName;
+            const file = uploadedFiles.find(f => f.fieldname === searchName);
+            return file ? `${baseUrl}/${file.filename}` : null;
+        };
+
+        // Process WhySimad images
+        const processedWhySimadItems = parsedWhySimadItems?.map((item, index) => {
+            const imageUrl = findFile('whySimadImage', index);
+            return {
+                ...item,
+                image: imageUrl || item.image // Keep existing image if no new upload
+            };
+        }) || [];
+
+        // Process Senate member images
+        const processedSenateMembers = parsedSenateMembers?.map((member, index) => {
+            const imageUrl = findFile('senateImage', index);
+            return {
+                ...member,
+                image: imageUrl || member.image // Keep existing image if no new upload
+            };
+        }) || [];
+
+        // Process Accreditation logos
+        const processedAccreditations = parsedAccreditations?.map((accreditation, index) => {
+            const logoUrl = findFile('accreditationLogo', index);
+            return {
+                ...accreditation,
+                logo: logoUrl || accreditation.logo // Keep existing logo if no new upload
+            };
+        }) || [];
+
+        // Process university logo and background
+        const processedUniversityData = {
+            ...parsedUniversityData,
+            logo: findFile('universityLogo') || parsedUniversityData.logo,
+            backgroundImage: findFile('universityBackground') || parsedUniversityData.backgroundImage
+        };
+
         // Validate all data
         const validationErrors = [];
 
         // Validate university data
-        if (!universityData || !universityData.name) {
+        if (!parsedUniversityData || !parsedUniversityData.name) {
             validationErrors.push('University name is required');
         }
 
         // Validate whySimad items
-        if (whySimadItems && Array.isArray(whySimadItems)) {
-            whySimadItems.forEach((item, index) => {
+        if (parsedWhySimadItems && Array.isArray(parsedWhySimadItems)) {
+            parsedWhySimadItems.forEach((item, index) => {
                 if (!item.title) validationErrors.push(`Why SIMAD item ${index + 1}: Title is required`);
                 if (!item.description) validationErrors.push(`Why SIMAD item ${index + 1}: Description is required`);
             });
         }
 
         // Validate history items
-        if (historyItems && Array.isArray(historyItems)) {
-            historyItems.forEach((item, index) => {
+        if (parsedHistoryItems && Array.isArray(parsedHistoryItems)) {
+            parsedHistoryItems.forEach((item, index) => {
                 if (!item.year) validationErrors.push(`History item ${index + 1}: Year is required`);
                 if (!item.events || !Array.isArray(item.events) || item.events.length === 0) {
                     validationErrors.push(`History item ${index + 1}: At least one event is required`);
@@ -68,22 +173,21 @@ exports.updateAllUniversityData = async (req, res) => {
         }
 
         // Validate senate members
-        if (senateMembers && Array.isArray(senateMembers)) {
-            senateMembers.forEach((member, index) => {
+        if (parsedSenateMembers && Array.isArray(parsedSenateMembers)) {
+            parsedSenateMembers.forEach((member, index) => {
                 if (!member.name) validationErrors.push(`Senate member ${index + 1}: Name is required`);
                 if (!member.position) validationErrors.push(`Senate member ${index + 1}: Position is required`);
             });
         }
 
         // Validate accreditations
-        if (accreditations && Array.isArray(accreditations)) {
-            accreditations.forEach((accreditation, index) => {
+        if (parsedAccreditations && Array.isArray(parsedAccreditations)) {
+            parsedAccreditations.forEach((accreditation, index) => {
                 if (!accreditation.name) validationErrors.push(`Accreditation ${index + 1}: Name is required`);
                 if (!accreditation.validity) validationErrors.push(`Accreditation ${index + 1}: Validity is required`);
             });
         }
 
-        // If there are validation errors, return them
         if (validationErrors.length > 0) {
             await session.abortTransaction();
             session.endSession();
@@ -93,38 +197,38 @@ exports.updateAllUniversityData = async (req, res) => {
         // Update university data
         let university = await University.findOne({});
         if (university) {
-            university = await University.findOneAndUpdate({}, universityData, {
+            university = await University.findOneAndUpdate({}, processedUniversityData, {
                 new: true,
                 runValidators: true,
                 session
             });
         } else {
-            university = await University.create([universityData], { session });
+            university = await University.create([processedUniversityData], { session });
             university = university[0];
         }
 
-        // Update WhySimad items - delete all and recreate
+        // Update WhySimad items
         await WhySimad.deleteMany({}, { session });
-        if (whySimadItems && whySimadItems.length > 0) {
-            await WhySimad.insertMany(whySimadItems, { session });
+        if (processedWhySimadItems.length > 0) {
+            await WhySimad.insertMany(processedWhySimadItems, { session });
         }
 
-        // Update History items - delete all and recreate
+        // Update History items
         await History.deleteMany({}, { session });
-        if (historyItems && historyItems.length > 0) {
-            await History.insertMany(historyItems, { session });
+        if (parsedHistoryItems && parsedHistoryItems.length > 0) {
+            await History.insertMany(parsedHistoryItems, { session });
         }
 
-        // Update Senate members - delete all and recreate
+        // Update Senate members
         await Senate.deleteMany({}, { session });
-        if (senateMembers && senateMembers.length > 0) {
-            await Senate.insertMany(senateMembers, { session });
+        if (processedSenateMembers.length > 0) {
+            await Senate.insertMany(processedSenateMembers, { session });
         }
 
-        // Update Accreditations - delete all and recreate
+        // Update Accreditations
         await Accreditation.deleteMany({}, { session });
-        if (accreditations && accreditations.length > 0) {
-            await Accreditation.insertMany(accreditations, { session });
+        if (processedAccreditations.length > 0) {
+            await Accreditation.insertMany(processedAccreditations, { session });
         }
 
         // Commit the transaction

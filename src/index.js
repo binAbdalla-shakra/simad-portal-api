@@ -7,6 +7,7 @@ const connectDB = require('./config/db');
 const errorHandler = require("../src/middlewares/errorHandler")
 const userRoutes = require('./routes/user.routes');
 const universityRoutes = require('./routes/university.routes');
+const path = require('path');
 
 
 require('dotenv').config();
@@ -31,6 +32,10 @@ app.use(cors({
 
 
 app.use(bodyParser.json());
+
+app.use(express.static(path.join(__dirname, 'uploads')));
+
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/v1/users', userRoutes);
@@ -56,6 +61,10 @@ app.use('/api/v1/history', require('./routes/history.routes'));
 app.use('/api/v1/senate', require('./routes/senate.routes'));
 app.use('/api/v1/accreditations', require('./routes/accreditation.routes'));
 // ===============================END ABOUT UNIVERSITY ROUTES=============================================
+
+
+// Upload Config Section
+app.use('/api/v1/save-default-upload-configs', require('./routes/UploadConfig.routes'));
 
 
 app.use('/api/v1/program-categories', require('./routes/ProgramController.routes'));

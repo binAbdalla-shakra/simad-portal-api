@@ -29,7 +29,6 @@ const schoolSchema = new Schema({
         type: String,
         default: ''
     },
-    // Reference to the dean (staff member)
     dean: {
         type: Schema.Types.ObjectId,
         ref: 'Staff'
