@@ -5,15 +5,11 @@ const { successResponse, errorResponse } = require('../utils/response');
 exports.getAllCategories = async (req, res) => {
     try {
         const { isActive, search } = req.query;
-
-
         const filter = {};
-
         // apply status filter only if provided
         if (isActive !== undefined && isActive !== "") {
             filter.isActive = isActive === 'true'; // query comes as string
         }
-
         // optional search filter
         if (search) {
             filter.name = { $regex: search, $options: "i" };
@@ -120,25 +116,5 @@ exports.deleteCategory = async (req, res) => {
         return errorResponse(res, error.message, 500);
     }
 };
-
-// Bulk update categories (for reordering)
-// exports.bulkUpdateCategories = async (req, res) => {
-//     try {
-//         const { categories } = req.body;
-
-//         const bulkOperations = categories.map(cat => ({
-//             updateOne: {
-//                 filter: { _id: cat._id },
-//                 update: { $set: { order: cat.order } }
-//             }
-//         }));
-
-//         await ProgramCategory.bulkWrite(bulkOperations);
-
-//         return successResponse(res, null, 'Categories order updated successfully');
-//     } catch (error) {
-//         return errorResponse(res, error.message, 500);
-//     }
-// };
 
 

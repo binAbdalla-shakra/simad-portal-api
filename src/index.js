@@ -6,6 +6,8 @@ const swaggerSpec = require('./swagger'); // Import the swagger spec
 const connectDB = require('./config/db');
 const errorHandler = require("../src/middlewares/errorHandler")
 const userRoutes = require('./routes/user.routes');
+const roleRoutes = require('./routes/role.routes');
+
 const universityRoutes = require('./routes/university.routes');
 const path = require('path');
 
@@ -31,7 +33,8 @@ app.use(cors({
 }));
 
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(express.static(path.join(__dirname, 'uploads')));
 
@@ -39,6 +42,8 @@ app.use(express.static(path.join(__dirname, 'uploads')));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/roles', roleRoutes);
+
 
 
 // ========================== ABOUT UNIVERSITY ROUTES ==========================
