@@ -1,29 +1,17 @@
-
 const School = require('../../models/school.model');
+const Program = require('../../models/program.model'); // adjust path
+
+const mongoose = require('mongoose');
+
 const { successResponse, errorResponse } = require('../../utils/response');
 
-// Get all schools
-exports.getAllSchools = async (req, res) => {
+// getSchoolsByCategoryID
+exports.getSchoolsByCategoryID = async (req, res) => {
     try {
-        const { isActive, search } = req.query;
+        const { category } = req.params;
 
-
-        const filter = {};
-
-        // apply status filter only if provided
-        if (isActive !== undefined && isActive !== "") {
-            filter.isActive = isActive === 'true'; // query comes as string
-        }
-
-        // optional search filter
-        if (search) {
-            filter.name = { $regex: search, $options: "i" };
-        }
-
-        const schools = await School.find(filter)
-            .populate('dean', 'name title')
-            .populate('category', 'name')
-            .sort({ order: 1 });
+        const schools = await School.find(category)
+            .sort({ order: 1 }).select('name logoUrl');
 
         return successResponse(res, { schools });
     } catch (error) {
@@ -31,142 +19,101 @@ exports.getAllSchools = async (req, res) => {
     }
 };
 
-// Get single school by ID
-exports.getSchoolById = async (req, res) => {
+
+exports.getSchoolsInfoByID = async (req, res) => {
     try {
         const { id } = req.params;
+
         const school = await School.findById(id)
-            // .populate('dean', 'name title email phone')
-            .populate('category', 'name');
+            .populate('dean', 'name title')
+            .populate('category', 'name')
+            .lean();
 
         if (!school) {
             return errorResponse(res, 'School not found', 404);
         }
 
-        return successResponse(res, { school });
+        const programs = await Program.find({ school: new mongoose.Types.ObjectId(id) })
+            .select('name shortName icon order')
+            .sort({ order: 1 })
+            .lean();
+        // console.log("ddd", programs)
+        const formatted = {
+            id: school._id,
+            name: school.name,
+            tagline: school.tagline,
+            shortDescription: school.shortDescription,
+            logoUrl: school.logoUrl,
+            coverImage: school.coverImage,
+
+            dean: school.dean
+                ? {
+                    name: school.dean.name,
+                    title: school.dean.title,
+                    message: school.dean_message_sec_text,
+                    section: {
+                        title: school.dean_message_sec_title,
+                        subtitle: school.dean_message_sec_subtitle,
+                        icon: school.dean_message_sec_icon,
+                    }
+                }
+                : null,
+
+            vision: school.vision,
+            mission: school.mission,
+            visionAndMissionSection: {
+                title: school.vison_and_mission_sec_title,
+                subtitle: school.vison_and_mission_sec_subtitle,
+                icon: school.vison_and_mission_sec_icon,
+            },
+
+            facts: {
+                academic_programs: programs.length,
+                academic_staff: school.facts_and_figures?.academic_staff,
+                student_population: school.facts_and_figures?.student_population,
+                founded_year: school.facts_and_figures?.founded_year,
+            },
+            factsSection: {
+                title: school.facts_message_sec_title,
+                subtitle: school.facts_message_sec_subtitle,
+                icon: school.facts_message_sec_icon,
+            },
+
+            testimonials: school.student_testimonials?.map(t => ({
+                student_name: t.student_name,
+                message: t.message,
+                program: t.student_program_shortName,
+            })),
+            testimonialsSection: {
+                title: school.testimonials_message_sec_title,
+                subtitle: school.testimonials_message_sec_subtitle,
+                icon: school.testimonials_message_sec_icon,
+            },
+
+            programs: programs,
+            programsSection: {
+                title: school.programs_sec_title,
+                subtitle: school.programs_sec_subtitle,
+                icon: school.programs_sec_icon,
+            },
+
+            contact: school.contactInfo,
+            contactSection: {
+                title: school.contact_message_sec_title,
+                subtitle: school.contact_message_sec_subtitle,
+                icon: school.contact_message_sec_icon,
+            },
+
+            order: school.order,
+            category: school.category?.name || null,
+            createdBy: school.createdBy,
+            updatedBy: school.updatedBy,
+            createdAt: school.createdAt,
+            updatedAt: school.updatedAt,
+        };
+
+        return successResponse(res, { school: formatted });
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }
 };
-
-// Create new school
-exports.createSchool = async (req, res) => {
-    try {
-        const schoolData = req.body;
-
-        // Check if school with same name already exists
-        const existingSchool = await School.findOne({
-            name: schoolData.name,
-            isActive: true
-        });
-
-        if (existingSchool) {
-            return errorResponse(res, 'School with this name already exists', 400);
-        }
-
-        const newSchool = new School(schoolData);
-        await newSchool.save();
-
-        // await newSchool.populate('category');
-
-        return successResponse(res, { school: newSchool }, 'School created successfully', 201);
-    } catch (error) {
-        return errorResponse(res, error.message, 500);
-    }
-};
-
-// Update school
-exports.updateSchool = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updateData = req.body;
-
-        const school = await School.findById(id);
-        if (!school) {
-            return errorResponse(res, 'School not found', 404);
-        }
-
-        // If name is being updated, check for duplicates
-        if (updateData.name && updateData.name !== school.name) {
-            const existingSchool = await School.findOne({
-                name: updateData.name,
-                isActive: true,
-                _id: { $ne: id }
-            });
-
-            if (existingSchool) {
-                return errorResponse(res, 'Another school with this name already exists', 400);
-            }
-        }
-
-        const updatedSchool = await School.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true }
-        ).populate('dean category');
-
-        return successResponse(res, { school: updatedSchool }, 'School updated successfully');
-    } catch (error) {
-        return errorResponse(res, error.message, 500);
-    }
-};
-
-// Delete school (soft delete)
-exports.deleteSchool = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const school = await School.findByIdAndDelete(id);
-
-        if (!school) {
-            return errorResponse(res, 'School not found', 404);
-        }
-
-        return successResponse(res, null, 'School deleted successfully');
-    } catch (error) {
-        return errorResponse(res, error.message, 500);
-    }
-};
-
-// // Add facility to school
-// exports.addFacility = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const facility = req.body;
-
-//         const school = await School.findById(id);
-//         if (!school) {
-//             return errorResponse(res, 'School not found', 404);
-//         }
-
-//         school.facilities.push(facility);
-//         await school.save();
-
-//         return successResponse(res, { school }, 'Facility added successfully');
-//     } catch (error) {
-//         return errorResponse(res, error.message, 500);
-//     }
-// };
-
-// // Get schools with programs count
-// exports.getSchoolsWithStats = async (req, res) => {
-//     try {
-//         const schools = await School.find({ isActive: true })
-//             .populate({
-//                 path: 'programs',
-//                 match: { isActive: true },
-//                 select: 'name'
-//             })
-//             .sort({ order: 1 });
-
-//         const schoolsWithStats = schools.map(school => ({
-//             ...school.toObject(),
-//             programCount: school.programs.length
-//         }));
-
-//         return successResponse(res, { schools: schoolsWithStats });
-//     } catch (error) {
-//         return errorResponse(res, error.message, 500);
-//     }
-// };
-

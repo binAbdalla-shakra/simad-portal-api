@@ -5,23 +5,9 @@ const { successResponse, errorResponse } = require('../../utils/response');
 // Get all schools
 exports.getAllSchools = async (req, res) => {
     try {
-        const { isActive, search } = req.query;
 
-
-        const filter = {};
-
-        // apply status filter only if provided
-        if (isActive !== undefined && isActive !== "") {
-            filter.isActive = isActive === 'true'; // query comes as string
-        }
-
-        // optional search filter
-        if (search) {
-            filter.name = { $regex: search, $options: "i" };
-        }
-
-        const schools = await School.find(filter)
-            .populate('dean', 'name title')
+        const schools = await School.find({})
+            .populate('dean', 'name')
             .populate('category', 'name')
             .sort({ order: 1 });
 
@@ -36,7 +22,7 @@ exports.getSchoolById = async (req, res) => {
     try {
         const { id } = req.params;
         const school = await School.findById(id)
-            // .populate('dean', 'name title email phone')
+            .populate('dean', 'name')
             .populate('category', 'name');
 
         if (!school) {
@@ -56,8 +42,7 @@ exports.createSchool = async (req, res) => {
 
         // Check if school with same name already exists
         const existingSchool = await School.findOne({
-            name: schoolData.name,
-            isActive: true
+            name: schoolData.name
         });
 
         if (existingSchool) {
@@ -90,7 +75,6 @@ exports.updateSchool = async (req, res) => {
         if (updateData.name && updateData.name !== school.name) {
             const existingSchool = await School.findOne({
                 name: updateData.name,
-                isActive: true,
                 _id: { $ne: id }
             });
 
@@ -127,46 +111,3 @@ exports.deleteSchool = async (req, res) => {
         return errorResponse(res, error.message, 500);
     }
 };
-
-// // Add facility to school
-// exports.addFacility = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const facility = req.body;
-
-//         const school = await School.findById(id);
-//         if (!school) {
-//             return errorResponse(res, 'School not found', 404);
-//         }
-
-//         school.facilities.push(facility);
-//         await school.save();
-
-//         return successResponse(res, { school }, 'Facility added successfully');
-//     } catch (error) {
-//         return errorResponse(res, error.message, 500);
-//     }
-// };
-
-// // Get schools with programs count
-// exports.getSchoolsWithStats = async (req, res) => {
-//     try {
-//         const schools = await School.find({ isActive: true })
-//             .populate({
-//                 path: 'programs',
-//                 match: { isActive: true },
-//                 select: 'name'
-//             })
-//             .sort({ order: 1 });
-
-//         const schoolsWithStats = schools.map(school => ({
-//             ...school.toObject(),
-//             programCount: school.programs.length
-//         }));
-
-//         return successResponse(res, { schools: schoolsWithStats });
-//     } catch (error) {
-//         return errorResponse(res, error.message, 500);
-//     }
-// };
-

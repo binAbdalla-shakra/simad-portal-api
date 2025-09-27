@@ -22,7 +22,6 @@ const departmentSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Staff'
     },
-
     // Contact information for department
     contactInfo: {
         phone: String,

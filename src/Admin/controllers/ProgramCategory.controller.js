@@ -4,18 +4,7 @@ const { successResponse, errorResponse } = require('../../utils/response');
 // Get all program categories
 exports.getAllCategories = async (req, res) => {
     try {
-        const { isActive, search } = req.query;
-        const filter = {};
-        // apply status filter only if provided
-        if (isActive !== undefined && isActive !== "") {
-            filter.isActive = isActive === 'true'; // query comes as string
-        }
-        // optional search filter
-        if (search) {
-            filter.name = { $regex: search, $options: "i" };
-        }
-
-        const categories = await ProgramCategory.find(filter).sort({ order: 1 });
+        const categories = await ProgramCategory.find({}).sort({ order: 1 });
         return successResponse(res, { categories });
     } catch (error) {
         return errorResponse(res, error.message, 500);

@@ -2,25 +2,15 @@ const express = require('express');
 const router = express.Router();
 const {
 
-    createSchool,
-    updateSchool,
-    deleteSchool,
-    getAllSchools,
-    getSchoolById
+    getSchoolsByCategoryID,
+    getSchoolsInfoByID
 } = require('../controllers/school.controller');
 
-// GET /api/accreditations - Get all accreditations
-router.get('/', getAllSchools);
 
-router.post('/', createSchool);
+router.get('/getSchoolsByCategoryID/:id', getSchoolsByCategoryID);
 
+router.get('/getSchoolsInfoByID/:id', getSchoolsInfoByID);
 
-// PUT /api/accreditations - Update accreditations
-router.put('/:id', updateSchool);
-
-router.delete('/:id', deleteSchool);
-
-router.get('/:id', getSchoolById);
 
 
 

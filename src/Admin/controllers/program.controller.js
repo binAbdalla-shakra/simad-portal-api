@@ -4,20 +4,9 @@ const { successResponse, errorResponse } = require('../../utils/response');
 // Get all programs with optional filtering
 exports.getAllPrograms = async (req, res) => {
     try {
-        const {
-            category,
-            school,
-            department,
-            isActive = true
-        } = req.query;
 
-        const filter = { isActive };
-        if (category) filter.category = category;
-        if (school) filter.school = school;
-        if (department) filter.department = department;
-
-        const programs = await Program.find(filter)
-            .populate('department', 'name')
+        const programs = await Program.find({})
+            .populate('school', 'name')
             .sort({ order: 1 });
 
         return successResponse(res, { programs });
@@ -30,8 +19,7 @@ exports.getAllPrograms = async (req, res) => {
 exports.getProgramById = async (req, res) => {
     try {
         const { id } = req.params;
-        const program = await Program.findById(id)
-            .populate('department', 'name');
+        const program = await Program.findById(id);
 
         if (!program) {
             return errorResponse(res, 'Program not found', 404);
@@ -50,8 +38,7 @@ exports.createProgram = async (req, res) => {
 
         // Check if program with same name already exists
         const existingProgram = await Program.findOne({
-            name: programData.name,
-            isActive: true
+            name: programData.name
         });
 
         if (existingProgram) {
@@ -60,8 +47,6 @@ exports.createProgram = async (req, res) => {
 
         const newProgram = new Program(programData);
         await newProgram.save();
-
-        await newProgram.populate('department');
 
         return successResponse(res, { program: newProgram }, 'Program created successfully', 201);
     } catch (error) {
@@ -84,7 +69,6 @@ exports.updateProgram = async (req, res) => {
         if (updateData.name && updateData.name !== program.name) {
             const existingProgram = await Program.findOne({
                 name: updateData.name,
-                isActive: true,
                 _id: { $ne: id }
             });
 
@@ -97,7 +81,7 @@ exports.updateProgram = async (req, res) => {
             id,
             updateData,
             { new: true, runValidators: true }
-        ).populate('department');
+        );
 
         return successResponse(res, { program: updatedProgram }, 'Program updated successfully');
     } catch (error) {
@@ -120,63 +104,3 @@ exports.deleteProgram = async (req, res) => {
         return errorResponse(res, error.message, 500);
     }
 };
-
-// // Add curriculum item
-// exports.addCurriculumItem = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const curriculumItem = req.body;
-
-//         const program = await Program.findById(id);
-//         if (!program) {
-//             return errorResponse(res, 'Program not found', 404);
-//         }
-
-//         program.curriculum.push(curriculumItem);
-//         await program.save();
-
-//         return successResponse(res, { program }, 'Curriculum item added successfully');
-//     } catch (error) {
-//         return errorResponse(res, error.message, 500);
-//     }
-// };
-
-// // Add career path
-// exports.addCareerPath = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const careerPath = req.body;
-
-//         const program = await Program.findById(id);
-//         if (!program) {
-//             return errorResponse(res, 'Program not found', 404);
-//         }
-
-//         program.careerPaths.push(careerPath);
-//         await program.save();
-
-//         return successResponse(res, { program }, 'Career path added successfully');
-//     } catch (error) {
-//         return errorResponse(res, error.message, 500);
-//     }
-// };
-
-// // Get programs by category
-// exports.getProgramsByCategory = async (req, res) => {
-//     try {
-//         const { categoryId } = req.params;
-//         const { isActive = true } = req.query;
-
-//         const programs = await Program.find({
-//             category: categoryId,
-//             isActive
-//         })
-//             .populate('school', 'name')
-//             .populate('department', 'name')
-//             .sort({ order: 1 });
-
-//         return successResponse(res, { programs });
-//     } catch (error) {
-//         return errorResponse(res, error.message, 500);
-//     }
-// };
