@@ -3,18 +3,22 @@
     "version": 2,
     "builds": [
         {
-            "src": "index.js",
+            "src": "Admin/index.js",
             "use": "@vercel/node"
         },
         {
-            "src": "src/**/*",
-            "use": "@vercel/static"
+            "src": "App/index.js",
+            "use": "@vercel/node"
         }
     ],
     "routes": [
         {
-            "src": "/(.*)",
-            "dest": "/"
+            "src": "/api/v1/admin/(.*)",
+            "dest": "Admin/index.js"
+        },
+        {
+            "src": "/api/v1/app/(.*)",
+            "dest": "App/index.js"
         }
     ]
 }
