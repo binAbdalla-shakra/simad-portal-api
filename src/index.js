@@ -28,7 +28,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 const adminApiRoutes = require('./App/routes/index');
-app.use(process.env.APP_URL_PREFIX, adminApiRoutes);
+app.use(process.env.APP_URL_PREFIX || '/api/v1/app', adminApiRoutes);
 
 
 app.use(errorHandler); // error handler
