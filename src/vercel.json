@@ -3,11 +3,11 @@
     "version": 2,
     "builds": [
         {
-            "src": "src/Admin/index.js",
+            "src": "Admin/index.js",
             "use": "@vercel/node"
         },
         {
-            "src": "src/App/index.js",
+            "src": "App/index.js",
             "use": "@vercel/node"
         }
     ],
