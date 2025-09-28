@@ -1,4 +1,7 @@
 const Program = require('../../models/program.model');
+const ProgramCategory = require('../../models/ProgramCategory.model');
+const School = require('../../models/school.model');
+
 const { successResponse, errorResponse } = require('../../utils/response');
 
 // Get single program by ID
@@ -69,3 +72,66 @@ exports.getProgramsInfoByID = async (req, res) => {
         return errorResponse(res, error.message, 500);
     }
 };
+
+
+
+
+exports.getAvaliableProgramsInfo = async (req, res) => {
+    try {
+        // Step 1: Get all categories
+        const categories = await ProgramCategory.find({ isActive: true })
+            .sort({ order: 1 })
+            .lean();
+
+        // Step 2: Get all schools linked to categories
+        const schools = await School.find()
+            .populate('category', 'name description icon')
+            .sort({ order: 1 })
+            .lean();
+
+        // Step 3: Get all programs linked to schools
+        const programs = await Program.find()
+            .sort({ order: 1 })
+            .lean();
+
+        // Step 4: Build structured response
+        const groupedData = {};
+
+        for (const category of categories) {
+            groupedData[category._id] = {
+                title: category.name,
+                color: '#f1f8f2',
+                subPrograms: [],
+            };
+        }
+
+        for (const school of schools) {
+            const schoolCategoryId = school.category?._id;
+            if (!groupedData[schoolCategoryId]) continue;
+
+            const schoolPrograms = programs
+                .filter((p) => String(p.school) === String(school._id))
+                .map((p) => ({
+                    id: p._id,
+                    name: p.name,
+                    icon: p.icon || 'school-outline',
+                }));
+
+            groupedData[schoolCategoryId].subPrograms.push({
+                id: school._id,
+                name: school.name,
+                type: 'category',
+                programs: schoolPrograms,
+            });
+        }
+
+        // Convert object → response format
+        const response = Object.values(groupedData);
+
+        return successResponse(res, { programs: response });
+    } catch (error) {
+        return errorResponse(res, error.message, 500);
+    }
+};
+
+

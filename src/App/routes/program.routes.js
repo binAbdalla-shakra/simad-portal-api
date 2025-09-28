@@ -2,12 +2,15 @@ const express = require('express');
 const router = express.Router();
 const {
 
-    getProgramsInfoByID
+    getProgramsInfoByID,
+    getAvaliableProgramsInfo
 } = require('../controllers/program.controller');
 
 
 
 router.get('/getProgramsInfoByID/:id', getProgramsInfoByID);
+router.get('/getAvaliableProgramsInfo', getAvaliableProgramsInfo);
+
 
 
 
