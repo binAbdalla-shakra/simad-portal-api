@@ -54,5 +54,11 @@ router.use('/partner-categories', require('./partnerCategory.routes'));
 router.use('/partners', require('./partners.routes'));
 
 
+router.use('/events', require('./event.routes'));
+router.use('/news', require('./news.routes'));
+
+
+
+
 
 module.exports = router;

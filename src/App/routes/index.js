@@ -16,6 +16,9 @@ router.use('/programs', require('./program.routes'));
 router.use('/staffs', require('./staff.routes'));
 router.use('/partners', require('./partners.routes'));
 
+router.use('/updates', require('./updates.routes'));
+
+
 
 
 module.exports = router;
