@@ -50,4 +50,9 @@ router.use('/staffs', require('./staff.routes'));
 
 
 
+router.use('/partner-categories', require('./partnerCategory.routes'));
+router.use('/partners', require('./partners.routes'));
+
+
+
 module.exports = router;

@@ -14,6 +14,8 @@ router.use('/schools', require('./school.routes'));
 
 router.use('/programs', require('./program.routes'));
 router.use('/staffs', require('./staff.routes'));
+router.use('/partners', require('./partners.routes'));
+
 
 
 module.exports = router;
