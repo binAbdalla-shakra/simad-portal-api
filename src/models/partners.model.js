@@ -7,6 +7,7 @@ const partnerSchema = new Schema({
     desc: { type: String, default: '' },
     howLong: { type: String, default: '' }, // e.g. "5 years partnership"
     category: { type: Schema.Types.ObjectId, ref: 'PartnersCategory', required: true },
+    order: { type: Number },
     createdBy: { type: String },
     updatedBy: { type: String }
 }, { timestamps: true });

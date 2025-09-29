@@ -1,16 +1,91 @@
 const Partner = require('../../models/partners.model');
+const { uploadToS3 } = require('../../service/upload.service');
 const { successResponse, errorResponse } = require('../../utils/response');
 
 // Create Partner
-exports.createPartner = async (req, res) => {
+exports.createorUpdatePartner = async (req, res) => {
     try {
-        const partner = new Partner(req.body);
-        await partner.save();
-        return successResponse(res, { partner });
+        const { _id } = req.body;
+
+        // Handle file upload (e.g. partner logo)
+        let logoUrl = '';
+        if (req.file) {
+            logoUrl = await uploadToS3(req.file, 'partners');
+        }
+
+        const partnerData = {
+            ...req.body,
+        };
+
+        delete partnerData._id; // Prevent accidental overwrite of _id
+
+        if (req.file) {
+            // New file uploaded – use the new logo
+            partnerData.logo = logoUrl;
+        } else if (_id) {
+            // Update without new file – retain existing logo
+            const existingPartner = await Partner.findById(_id);
+            partnerData.logo = existingPartner?.logo || '';
+        } else {
+            // Create without logo
+            partnerData.logo = '';
+        }
+
+        let resultPartner;
+
+        if (_id) {
+            // UPDATE operation
+            resultPartner = await Partner.findByIdAndUpdate(
+                _id,
+                {
+                    ...partnerData,
+                    updatedAt: new Date()
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                    context: 'query'
+                }
+            );
+
+            if (!resultPartner) {
+                return errorResponse(res, 'Partner not found for update', 404);
+            }
+
+        } else {
+            // CREATE operation
+            const newPartner = new Partner(partnerData);
+            resultPartner = await newPartner.save();
+        }
+
+        const message = _id
+            ? 'Partner updated successfully'
+            : 'Partner created successfully';
+
+        const statusCode = _id ? 200 : 201;
+
+        return successResponse(res, { partner: resultPartner }, message, statusCode);
+
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        console.error('Error in createorUpdatePartner:', error);
+
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return errorResponse(res, `Validation error: ${errors.join(', ')}`, 400);
+        }
+
+        if (error.code === 11000) {
+            return errorResponse(res, 'Duplicate field error', 400);
+        }
+
+        if (error.name === 'CastError') {
+            return errorResponse(res, 'Invalid ID format', 400);
+        }
+
+        return errorResponse(res, 'Internal server error', 500);
     }
 };
+
 
 // Get All Partners
 exports.getPartners = async (req, res) => {
