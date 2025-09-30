@@ -6,13 +6,15 @@ const { successResponse, errorResponse } = require('../../utils/response');
 //  Get active news
 exports.getActiveNews = async (req, res) => {
     try {
-        const news = await News.find({ isActive: true }).sort({ date: -1 });
+        const news = await News.find({ isActive: true })
+            .sort({ date: -1 })
+            .select('_id title image toWhom infoLink date description category'); // select only these fields
+
         return successResponse(res, news, 'News fetched successfully');
     } catch (error) {
         return errorResponse(res, error.message);
     }
 };
-
 
 
 // Get active events
