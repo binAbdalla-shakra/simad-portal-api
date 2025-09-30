@@ -32,10 +32,6 @@ const eventSchema = new Schema(
             type: String,
             default: '',
         },
-        isActive: {
-            type: Boolean,
-            default: true,
-        },
         createdBy: {
             type: String,
             default: 'system',

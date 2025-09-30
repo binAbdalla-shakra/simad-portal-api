@@ -18,7 +18,7 @@ exports.getActiveNews = async (req, res) => {
 // Get active events
 exports.getAllEvents = async (req, res) => {
     try {
-        const events = await Event.find({ isActive: true }).sort({ date: 1 });
+        const events = await Event.find({ date: { $gte: new Date() } }).sort({ date: 1 });
         return successResponse(res, events, 'Events fetched successfully');
     } catch (error) {
         return errorResponse(res, error.message, 500);

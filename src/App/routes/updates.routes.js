@@ -3,7 +3,7 @@ const router = express.Router();
 const updatesController = require('../controllers/updates.controller');
 
 router.get('/active-news', updatesController.getActiveNews);
-router.get('/active-events', updatesController.getAllEvents);
+router.get('/upcoming-events', updatesController.getAllEvents);
 
 
 module.exports = router;
