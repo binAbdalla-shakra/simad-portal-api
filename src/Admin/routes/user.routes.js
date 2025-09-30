@@ -12,6 +12,6 @@ router.delete('/:id', authController.deleteUser);
 
 // router.post('/refresh-token', authController.refreshToken);
 // router.post('/logout', authenticate, authController.logout);
-router.patch('/change-password', authenticate, authController.changePassword);
+router.patch('/change-password', authController.changePassword);
 
 module.exports = router;

@@ -59,10 +59,10 @@ const userSchema = new mongoose.Schema({
     no_of_followers: {
         type: String
     },
-    //   roles: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Role'
-    //   }],
+    roles: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
+    }],
     isActive: {
         type: Boolean,
         default: true

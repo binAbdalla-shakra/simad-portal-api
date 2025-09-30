@@ -14,7 +14,7 @@ class AuthService {
         // Check for static user first
         if (username === "WLLKA" && password === "452020") {
             return {
-                staff: {
+                user: {
                     _id: "SUPER-ADMIN",
                     username: "WLLKA",
                     name: "Static Admin",

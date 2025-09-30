@@ -33,11 +33,10 @@ const login = catchAsync(async (req, res) => {
 // });
 
 const changePassword = catchAsync(async (req, res) => {
-    const { currentPassword, newPassword } = req.body;
-    await authService.changePassword(req.user.id, currentPassword, newPassword);
+    const { userId, currentPassword, newPassword } = req.body;
+    await authService.changePassword(userId, currentPassword, newPassword);
     return successResponse(res, null, 'Password changed successfully', 204);
 });
-
 
 
 const getUsers = catchAsync(async (req, res) => {
