@@ -6,7 +6,7 @@ exports.createCategory = async (req, res) => {
     try {
         const category = new PartnersCategory(req.body);
         await category.save();
-        return successResponse(res, { category });
+        return successResponse(res, { category }, "Successfully Created Category");
 
     } catch (error) {
         return errorResponse(res, error.message, 500);
@@ -39,7 +39,7 @@ exports.updateCategory = async (req, res) => {
     try {
         const category = await PartnersCategory.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!category) return errorResponse(res, 'partner category not found', 404);
-        return successResponse(res, { category });
+        return successResponse(res, { category }, "Successfully Updated Category");
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }
