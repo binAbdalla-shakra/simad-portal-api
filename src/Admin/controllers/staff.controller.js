@@ -32,62 +32,93 @@ exports.getStaffById = async (req, res) => {
 };
 
 // Create new staff member
-exports.createStaff = async (req, res) => {
+exports.createOrUpdateStaff = async (req, res) => {
     try {
-        const staffData = req.body;
+        const { _id, email } = req.body;
 
-        // Check if email already exists
-        const existingStaff = await Staff.findOne({
-            email: staffData.email
-        });
-
-        if (existingStaff) {
-            return errorResponse(res, 'Staff member with this email already exists', 400);
+        // Handle photo upload
+        let photoUrl = '';
+        if (req.file) {
+            photoUrl = await uploadToS3(req.file, 'staff');
         }
 
-        const newStaff = new Staff(staffData);
-        await newStaff.save();
+        const staffData = {
+            ...req.body,
+        };
 
-        return successResponse(res, { staff: newStaff }, 'Staff member created successfully', 201);
-    } catch (error) {
-        return errorResponse(res, error.message, 500);
-    }
-};
+        delete staffData._id;
 
-// Update staff member
-exports.updateStaff = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updateData = req.body;
+        let existingStaff;
 
-        const staff = await Staff.findById(id);
-        if (!staff) {
-            return errorResponse(res, 'Staff member not found', 404);
-        }
+        if (_id) {
+            // Fetch existing staff for old photo URL
+            existingStaff = await Staff.findById(_id);
+            if (!existingStaff) {
+                return errorResponse(res, 'Staff member not found', 404);
+            }
 
-        // If email is being updated, check for duplicates
-        if (updateData.email && updateData.email !== staff.email) {
-            const existingStaff = await Staff.findOne({
-                email: updateData.email,
-                _id: { $ne: id }
-            });
-
-            if (existingStaff) {
+            // Prevent duplicate email on update
+            const duplicate = await Staff.findOne({ email, _id: { $ne: _id } });
+            if (duplicate) {
                 return errorResponse(res, 'Another staff member with this email already exists', 400);
+            }
+        } else {
+            // Prevent duplicate email on create
+            const existing = await Staff.findOne({ email });
+            if (existing) {
+                return errorResponse(res, 'Staff member with this email already exists', 400);
             }
         }
 
-        const updatedStaff = await Staff.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true }
-        );
+        if (req.file) {
+            staffData.photoUrl = photoUrl;
 
-        return successResponse(res, { staff: updatedStaff }, 'Staff member updated successfully');
+            // Delete old photo from S3 if updating
+            if (_id && existingStaff?.photoUrl) {
+                await deleteFromS3(existingStaff.photoUrl);
+            }
+        } else if (_id) {
+            staffData.photoUrl = existingStaff?.photoUrl || '';
+        } else {
+            staffData.photoUrl = '';
+        }
+
+        let resultStaff;
+
+        if (_id) {
+            // UPDATE
+            resultStaff = await Staff.findByIdAndUpdate(
+                _id,
+                {
+                    ...staffData,
+                    updatedAt: new Date()
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                    context: 'query'
+                }
+            );
+        } else {
+            // CREATE
+            const newStaff = new Staff(staffData);
+            resultStaff = await newStaff.save();
+        }
+
+        const message = _id
+            ? 'Staff member updated successfully'
+            : 'Staff member created successfully';
+
+        const statusCode = _id ? 200 : 201;
+
+        return successResponse(res, { staff: resultStaff }, message, statusCode);
+
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }
 };
+
+
 
 // Delete staff member 
 exports.deleteStaff = async (req, res) => {

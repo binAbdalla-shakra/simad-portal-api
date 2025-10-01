@@ -1,17 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const {
-    createEvent,
+    createOrUpdateEvent,
     getAllEvents,
     getEventById,
-    updateEvent,
     deleteEvent,
 } = require('../controllers/event.controller');
+const { uploadFile } = require('../../middlewares/upload.middleware');
 
-router.post('/', createEvent);
+router.post('/', uploadFile('image'), createOrUpdateEvent);
 router.get('/', getAllEvents);
 router.get('/:id', getEventById);
-router.put('/:id', updateEvent);
 router.delete('/:id', deleteEvent);
 
 module.exports = router;

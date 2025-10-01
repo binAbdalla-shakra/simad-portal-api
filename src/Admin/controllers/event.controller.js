@@ -1,11 +1,74 @@
 const Event = require('../../models/Event.model');
 const { successResponse, errorResponse } = require('../../utils/response');
-
-// Create Event
-exports.createEvent = async (req, res) => {
+const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
+exports.createOrUpdateEvent = async (req, res) => {
     try {
-        const event = await Event.create(req.body);
-        return successResponse(res, event, 'Event created successfully');
+        const { _id } = req.body;
+
+        // Handle image upload (e.g., event banner or cover)
+        let imageUrl = '';
+        if (req.file) {
+            imageUrl = await uploadToS3(req.file, 'events');
+        }
+
+        const eventData = {
+            ...req.body,
+        };
+
+        delete eventData._id; // Avoid overwriting _id directly
+
+        let existingEvent;
+
+        if (_id) {
+            existingEvent = await Event.findById(_id);
+            if (!existingEvent) {
+                return errorResponse(res, 'Event not found for update', 404);
+            }
+        }
+
+        if (req.file) {
+            eventData.image = imageUrl;
+
+            // Delete old image if updating
+            if (_id && existingEvent?.image) {
+                await deleteFromS3(existingEvent.image);
+            }
+        } else if (_id) {
+            eventData.image = existingEvent?.image || '';
+        } else {
+            eventData.image = '';
+        }
+
+        let resultEvent;
+
+        if (_id) {
+            // UPDATE operation
+            resultEvent = await Event.findByIdAndUpdate(
+                _id,
+                {
+                    ...eventData,
+                    updatedAt: new Date()
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                    context: 'query'
+                }
+            );
+        } else {
+            // CREATE operation
+            const newEvent = new Event(eventData);
+            resultEvent = await newEvent.save();
+        }
+
+        const message = _id
+            ? 'Event updated successfully'
+            : 'Event created successfully';
+
+        const statusCode = _id ? 200 : 201;
+
+        return successResponse(res, { event: resultEvent }, message, statusCode);
+
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }
@@ -15,7 +78,7 @@ exports.createEvent = async (req, res) => {
 exports.getAllEvents = async (req, res) => {
     try {
         const events = await Event.find().sort({ date: 1 });
-        return successResponse(res, events, 'Events fetched successfully');
+        return successResponse(res, { events }, 'Events fetched successfully');
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }
@@ -27,19 +90,6 @@ exports.getEventById = async (req, res) => {
         const event = await Event.findById(req.params.id);
         if (!event) return errorResponse(res, 'Event not found', 404);
         return successResponse(res, event, 'Event fetched successfully');
-    } catch (error) {
-        return errorResponse(res, error.message, 500);
-    }
-};
-
-// Update Event
-exports.updateEvent = async (req, res) => {
-    try {
-        const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-        });
-        if (!event) return errorResponse(res, 'Event not found', 404);
-        return successResponse(res, event, 'Event updated successfully');
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }

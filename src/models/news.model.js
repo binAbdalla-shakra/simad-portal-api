@@ -8,8 +8,6 @@ const newsSchema = new Schema({
     infoLink: { type: String, default: '' }, // external link to more details
     date: { type: Date, required: true },
     isActive: { type: Boolean, default: true },
-
-    // Additional optional fields for scalability
     description: { type: String, default: '' },
     category: { type: String, default: '' }, // e.g., "Announcement", "Press Release"
     createdBy: { type: String, default: '' },

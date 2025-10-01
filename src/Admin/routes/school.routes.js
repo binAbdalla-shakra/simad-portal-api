@@ -2,21 +2,18 @@ const express = require('express');
 const router = express.Router();
 const {
 
-    createSchool,
-    updateSchool,
+    createOrUpdateSchool,
     deleteSchool,
     getAllSchools,
     getSchoolById
 } = require('../controllers/school.controller');
+const { uploadSchoolImages } = require('../../middlewares/upload.middleware');
 
 // GET /api/accreditations - Get all accreditations
 router.get('/', getAllSchools);
 
-router.post('/', createSchool);
+router.post('/', uploadSchoolImages, createOrUpdateSchool);
 
-
-// PUT /api/accreditations - Update accreditations
-router.put('/:id', updateSchool);
 
 router.delete('/:id', deleteSchool);
 

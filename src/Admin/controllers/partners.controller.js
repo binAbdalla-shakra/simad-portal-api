@@ -19,12 +19,24 @@ exports.createorUpdatePartner = async (req, res) => {
 
         delete partnerData._id; // Prevent accidental overwrite of _id
 
+        let existingPartner;
+        if (_id) {
+            existingPartner = await Partner.findById(_id);
+            if (!existingPartner) {
+                return errorResponse(res, 'Partner not found for update', 404);
+            }
+        }
+
         if (req.file) {
             // New file uploaded – use the new logo
             partnerData.logo = logoUrl;
+
+            // Delete old logo from S3 if updating
+            if (_id && existingPartner?.logo) {
+                await deleteFromS3(existingPartner.logo);
+            }
         } else if (_id) {
             // Update without new file – retain existing logo
-            const existingPartner = await Partner.findById(_id);
             partnerData.logo = existingPartner?.logo || '';
         } else {
             // Create without logo
@@ -67,24 +79,10 @@ exports.createorUpdatePartner = async (req, res) => {
         return successResponse(res, { partner: resultPartner }, message, statusCode);
 
     } catch (error) {
-        console.error('Error in createorUpdatePartner:', error);
-
-        if (error.name === 'ValidationError') {
-            const errors = Object.values(error.errors).map(err => err.message);
-            return errorResponse(res, `Validation error: ${errors.join(', ')}`, 400);
-        }
-
-        if (error.code === 11000) {
-            return errorResponse(res, 'Duplicate field error', 400);
-        }
-
-        if (error.name === 'CastError') {
-            return errorResponse(res, 'Invalid ID format', 400);
-        }
-
-        return errorResponse(res, 'Internal server error', 500);
+        return errorResponse(res, error.message, 500);
     }
 };
+
 
 
 // Get All Partners

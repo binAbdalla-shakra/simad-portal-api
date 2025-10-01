@@ -2,21 +2,17 @@ const express = require('express');
 const router = express.Router();
 const {
 
-    createStaff,
-    updateStaff,
+    createOrUpdateStaff,
     deleteStaff,
     getAllStaff,
     getStaffById
 } = require('../controllers/staff.controller');
+const { uploadFile } = require('../../middlewares/upload.middleware');
 
 // GET /api/accreditations - Get all accreditations
 router.get('/', getAllStaff);
 
-router.post('/', createStaff);
-
-
-// PUT /api/accreditations - Update accreditations
-router.put('/:id', updateStaff);
+router.post('/', uploadFile('photoUrl'), createOrUpdateStaff);
 
 router.delete('/:id', deleteStaff);
 

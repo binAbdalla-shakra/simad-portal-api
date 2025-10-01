@@ -31,63 +31,97 @@ exports.getProgramById = async (req, res) => {
     }
 };
 
-// Create new program
-exports.createProgram = async (req, res) => {
+exports.createOrUpdateProgram = async (req, res) => {
     try {
-        const programData = req.body;
+        const { _id, name } = req.body;
 
-        // Check if program with same name already exists
-        const existingProgram = await Program.findOne({
-            name: programData.name
-        });
+        let coverImageUrl = '';
 
-        if (existingProgram) {
-            return errorResponse(res, 'Program with this name already exists', 400);
+        if (req.file) {
+            // Upload new cover image first
+            coverImageUrl = await uploadToS3(req.file, 'programs/covers');
         }
 
-        const newProgram = new Program(programData);
-        await newProgram.save();
+        const programData = {
+            ...req.body,
+        };
 
-        return successResponse(res, { program: newProgram }, 'Program created successfully', 201);
-    } catch (error) {
-        return errorResponse(res, error.message, 500);
-    }
-};
+        delete programData._id;
 
-// Update program
-exports.updateProgram = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updateData = req.body;
+        let existingProgram;
 
-        const program = await Program.findById(id);
-        if (!program) {
-            return errorResponse(res, 'Program not found', 404);
-        }
+        if (_id) {
+            // Fetch existing program to get old cover image URL
+            existingProgram = await Program.findById(_id);
+            if (!existingProgram) {
+                return errorResponse(res, 'Program not found', 404);
+            }
 
-        // If name is being updated, check for duplicates
-        if (updateData.name && updateData.name !== program.name) {
-            const existingProgram = await Program.findOne({
-                name: updateData.name,
-                _id: { $ne: id }
-            });
-
-            if (existingProgram) {
+            // Check for duplicate name excluding current program
+            const duplicate = await Program.findOne({ name, _id: { $ne: _id } });
+            if (duplicate) {
                 return errorResponse(res, 'Another program with this name already exists', 400);
+            }
+        } else {
+            // On create, check duplicate name
+            const existingName = await Program.findOne({ name });
+            if (existingName) {
+                return errorResponse(res, 'Program with this name already exists', 400);
             }
         }
 
-        const updatedProgram = await Program.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true }
-        );
+        // Handle cover image URL update and possible deletion of old image
+        if (req.file) {
+            // New image uploaded, set new URL
+            programData.coverImage = coverImageUrl;
 
-        return successResponse(res, { program: updatedProgram }, 'Program updated successfully');
+            // Delete old image if updating
+            if (_id && existingProgram.coverImage) {
+                await deleteFromS3(existingProgram.coverImage);
+            }
+        } else if (_id) {
+            // No new image uploaded, keep old one
+            programData.coverImage = existingProgram.coverImage || '';
+        } else {
+            // Create without image
+            programData.coverImage = '';
+        }
+
+        let resultProgram;
+
+        if (_id) {
+            // UPDATE
+            resultProgram = await Program.findByIdAndUpdate(
+                _id,
+                {
+                    ...programData,
+                    updatedAt: new Date()
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                    context: 'query'
+                }
+            );
+        } else {
+            // CREATE
+            const newProgram = new Program(programData);
+            resultProgram = await newProgram.save();
+        }
+
+        const message = _id
+            ? 'Program updated successfully'
+            : 'Program created successfully';
+
+        const statusCode = _id ? 200 : 201;
+
+        return successResponse(res, { program: resultProgram }, message, statusCode);
+
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }
 };
+
 
 // Delete program (soft delete)
 exports.deleteProgram = async (req, res) => {

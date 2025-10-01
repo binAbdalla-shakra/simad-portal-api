@@ -35,65 +35,121 @@ exports.getSchoolById = async (req, res) => {
     }
 };
 
-// Create new school
-exports.createSchool = async (req, res) => {
+exports.createOrUpdateSchool = async (req, res) => {
     try {
-        const schoolData = req.body;
+        const { _id, name } = req.body;
 
-        // Check if school with same name already exists
-        const existingSchool = await School.findOne({
-            name: schoolData.name
-        });
+        // Handle file uploads
+        let logoUrl = '';
+        let coverImageUrl = '';
 
-        if (existingSchool) {
-            return errorResponse(res, 'School with this name already exists', 400);
+        if (req.files?.logo) {
+            logoUrl = await uploadToS3(req.files.logo[0], 'schools/logos');
         }
 
-        const newSchool = new School(schoolData);
-        await newSchool.save();
-
-        // await newSchool.populate('category');
-
-        return successResponse(res, { school: newSchool }, 'School created successfully', 201);
-    } catch (error) {
-        return errorResponse(res, error.message, 500);
-    }
-};
-
-// Update school
-exports.updateSchool = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updateData = req.body;
-
-        const school = await School.findById(id);
-        if (!school) {
-            return errorResponse(res, 'School not found', 404);
+        if (req.files?.coverImage) {
+            coverImageUrl = await uploadToS3(req.files.coverImage[0], 'schools/covers');
         }
 
-        // If name is being updated, check for duplicates
-        if (updateData.name && updateData.name !== school.name) {
-            const existingSchool = await School.findOne({
-                name: updateData.name,
-                _id: { $ne: id }
+        const schoolData = {
+            ...req.body,
+        };
+
+        delete schoolData._id;
+
+        let existingSchool;
+
+        if (_id) {
+            // Fetch existing school for old images
+            existingSchool = await School.findById(_id);
+            if (!existingSchool) {
+                return errorResponse(res, 'School not found', 404);
+            }
+
+            // Prevent duplicate school name during update
+            const duplicate = await School.findOne({
+                name,
+                _id: { $ne: _id }
             });
-
-            if (existingSchool) {
+            if (duplicate) {
                 return errorResponse(res, 'Another school with this name already exists', 400);
+            }
+        } else {
+            // Prevent duplicate school name during creation
+            const existing = await School.findOne({ name });
+            if (existing) {
+                return errorResponse(res, 'School with this name already exists', 400);
             }
         }
 
-        const updatedSchool = await School.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true }
-        ).populate('dean category');
+        // Logo handling with old image deletion
+        if (req.files?.logo) {
+            schoolData.logoUrl = logoUrl;
 
-        return successResponse(res, { school: updatedSchool }, 'School updated successfully');
+            // Delete old logo from S3 if updating
+            if (_id && existingSchool?.logoUrl) {
+                await deleteFromS3(existingSchool.logoUrl);
+            }
+        } else if (_id) {
+            schoolData.logoUrl = existingSchool?.logoUrl || '';
+        } else {
+            schoolData.logoUrl = '';
+        }
+
+        // Cover image handling with old image deletion
+        if (req.files?.coverImage) {
+            schoolData.coverImage = coverImageUrl;
+
+            // Delete old cover image from S3 if updating
+            if (_id && existingSchool?.coverImage) {
+                await deleteFromS3(existingSchool.coverImage);
+            }
+        } else if (_id) {
+            schoolData.coverImage = existingSchool?.coverImage || '';
+        } else {
+            schoolData.coverImage = '';
+        }
+
+        let resultSchool;
+
+        if (_id) {
+            // UPDATE
+            resultSchool = await School.findByIdAndUpdate(
+                _id,
+                {
+                    ...schoolData,
+                    updatedAt: new Date()
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                    context: 'query'
+                }
+            );
+
+            if (!resultSchool) {
+                return errorResponse(res, 'School not found', 404);
+            }
+        } else {
+            // CREATE
+            const newSchool = new School(schoolData);
+            resultSchool = await newSchool.save();
+        }
+
+        const message = _id
+            ? 'School updated successfully'
+            : 'School created successfully';
+
+        const statusCode = _id ? 200 : 201;
+
+        return successResponse(res, { school: resultSchool }, message, statusCode);
+
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }
 };
+
+
 
 // Delete school (soft delete)
 exports.deleteSchool = async (req, res) => {

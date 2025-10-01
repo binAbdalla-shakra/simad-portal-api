@@ -2,21 +2,18 @@ const express = require('express');
 const router = express.Router();
 const {
 
-    createProgram,
-    updateProgram,
+    createOrUpdateProgram,
     deleteProgram,
     getAllPrograms,
     getProgramById
 } = require('../controllers/program.controller');
+const { uploadFile } = require('../../middlewares/upload.middleware');
 
 // GET /api/accreditations - Get all accreditations
 router.get('/', getAllPrograms);
 
-router.post('/', createProgram);
+router.post('/', uploadFile('coverImage'), createOrUpdateProgram);
 
-
-// PUT /api/accreditations - Update accreditations
-router.put('/:id', updateProgram);
 
 router.delete('/:id', deleteProgram);
 

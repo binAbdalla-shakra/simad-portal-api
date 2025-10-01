@@ -1,14 +1,78 @@
 const News = require('../../models/news.model');
 const { successResponse, errorResponse } = require('../../utils/response');
-
-//  Create News
-exports.createNews = async (req, res) => {
+const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
+exports.createOrUpdateNews = async (req, res) => {
     try {
-        const news = new News(req.body);
-        await news.save();
-        return successResponse(res, news, 'News created successfully');
+        const { _id } = req.body;
+
+        // Handle image upload (e.g. news cover image)
+        let imageUrl = '';
+        if (req.file) {
+            imageUrl = await uploadToS3(req.file, 'news');
+        }
+
+        const newsData = {
+            ...req.body,
+        };
+
+        delete newsData._id; // Avoid accidentally overwriting _id
+
+        let existingNews;
+        if (_id) {
+            existingNews = await News.findById(_id);
+            if (!existingNews) {
+                return errorResponse(res, 'News not found for update', 404);
+            }
+        }
+
+        if (req.file) {
+            // If a new image was uploaded, use it
+            newsData.image = imageUrl;
+
+            // Delete old image from S3 if updating
+            if (_id && existingNews?.image) {
+                await deleteFromS3(existingNews.image);
+            }
+        } else if (_id) {
+            // If updating and no new image was uploaded, retain existing image
+            newsData.image = existingNews?.image || '';
+        } else {
+            // Creating without image
+            newsData.image = '';
+        }
+
+        let resultNews;
+
+        if (_id) {
+            // UPDATE operation
+            resultNews = await News.findByIdAndUpdate(
+                _id,
+                {
+                    ...newsData,
+                    updatedAt: new Date()
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                    context: 'query'
+                }
+            );
+        } else {
+            // CREATE operation
+            const newNews = new News(newsData);
+            resultNews = await newNews.save();
+        }
+
+        const message = _id
+            ? 'News updated successfully'
+            : 'News created successfully';
+
+        const statusCode = _id ? 200 : 201;
+
+        return successResponse(res, { news: resultNews }, message, statusCode);
+
     } catch (error) {
-        return errorResponse(res, error.message);
+        return errorResponse(res, error.message, 500);
     }
 };
 
@@ -16,7 +80,7 @@ exports.createNews = async (req, res) => {
 exports.getAllNews = async (req, res) => {
     try {
         const news = await News.find().sort({ date: -1 });
-        return successResponse(res, news, 'News fetched successfully');
+        return successResponse(res, { news }, 'News fetched successfully');
     } catch (error) {
         return errorResponse(res, error.message);
     }
@@ -33,16 +97,6 @@ exports.getNewsById = async (req, res) => {
     }
 };
 
-//  Update News
-exports.updateNews = async (req, res) => {
-    try {
-        const news = await News.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!news) return errorResponse(res, 'News not found', 404);
-        return successResponse(res, news, 'News updated successfully');
-    } catch (error) {
-        return errorResponse(res, error.message);
-    }
-};
 
 //  Delete News
 exports.deleteNews = async (req, res) => {
