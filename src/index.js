@@ -15,10 +15,12 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    const isAllowed = allowedOrigins.some(o => origin && origin.startsWith(o));
+    if (!origin || isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      console.error('Blocked by CORS: ' + origin);
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
