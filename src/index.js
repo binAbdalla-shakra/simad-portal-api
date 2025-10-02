@@ -23,13 +23,14 @@ app.use(cors({
   },
   credentials: true
 }));
+app.options('*', cors()); // enable pre-flight across-the-board
 
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-const adminApiRoutes = require('./App/routes/index');
-app.use(process.env.APP_URL_PREFIX || '/api/v1/app', adminApiRoutes);
+const appApiRoutes = require('./App/routes/index');
+app.use(process.env.APP_URL_PREFIX || '/api/v1/app', appApiRoutes);
 
 const adminApiRoutes = require('./Admin/routes/index');
 app.use(process.env.ADMIN_URL_PREFIX, adminApiRoutes);
