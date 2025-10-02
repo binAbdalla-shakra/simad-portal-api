@@ -30,6 +30,12 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 const adminApiRoutes = require('./App/routes/index');
 app.use(process.env.APP_URL_PREFIX || '/api/v1/app', adminApiRoutes);
 
+const adminApiRoutes = require('./Admin/routes/index');
+app.use(process.env.ADMIN_URL_PREFIX, adminApiRoutes);
+
+
+
+
 
 app.use(errorHandler); // error handler
 

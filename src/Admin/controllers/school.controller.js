@@ -1,5 +1,6 @@
 
 const School = require('../../models/school.model');
+const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
 const { successResponse, errorResponse } = require('../../utils/response');
 
 // Get all schools

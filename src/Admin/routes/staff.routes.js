@@ -12,7 +12,7 @@ const { uploadFile } = require('../../middlewares/upload.middleware');
 // GET /api/accreditations - Get all accreditations
 router.get('/', getAllStaff);
 
-router.post('/', uploadFile('photoUrl'), createOrUpdateStaff);
+router.post('/', uploadFile('photo'), createOrUpdateStaff);
 
 router.delete('/:id', deleteStaff);
 

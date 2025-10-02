@@ -1,4 +1,5 @@
 const Staff = require('../../models/Staff.model');
+const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
 const { successResponse, errorResponse } = require('../../utils/response');
 
 // Get all staff members with optional filtering
@@ -6,7 +7,6 @@ exports.getAllStaff = async (req, res) => {
     try {
 
         const staff = await Staff.find({})
-            .populate('school', 'name')
             .sort({ createdAt: -1 });
 
         return successResponse(res, { staff });
@@ -114,6 +114,7 @@ exports.createOrUpdateStaff = async (req, res) => {
         return successResponse(res, { staff: resultStaff }, message, statusCode);
 
     } catch (error) {
+        console.log("error", error);
         return errorResponse(res, error.message, 500);
     }
 };
