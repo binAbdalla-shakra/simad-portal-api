@@ -34,8 +34,8 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 const appApiRoutes = require('./App/routes/index');
 app.use(process.env.APP_URL_PREFIX || '/api/v1/app', appApiRoutes);
 
-// const adminApiRoutes = require('./Admin/routes/index');
-// app.use(process.env.ADMIN_URL_PREFIX, adminApiRoutes);
+const adminApiRoutes = require('./Admin/routes/index');
+app.use(process.env.ADMIN_URL_PREFIX, adminApiRoutes);
 
 
 
