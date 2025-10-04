@@ -8,27 +8,11 @@ const cheerio = require("cheerio");
 const striptags = require('striptags');
 const { JSDOM } = require('jsdom');
 const { successResponse, errorResponse } = require('../../utils/response');
+const School = require('../../models/school.model');
+const Program = require('../../models/program.model');
+const Partner = require('../../models/partners.model');
 
-// Get all university data
-exports.getAllUniversityData = async (req, res) => {
-    try {
-        const university = await University.findOne({});
-        const whySimadItems = await WhySimad.find({ isActive: true }).sort({ order: 1 });
-        const historyItems = await History.find({ isActive: true }).sort({ year: -1 });
-        const senateMembers = await Senate.find({ isActive: true }).sort({ order: 1 });
-        const accreditations = await Accreditation.find({ isActive: true }).sort({ order: 1 });
 
-        return successResponse(res, {
-            university,
-            whySimadItems,
-            historyItems,
-            senateMembers,
-            accreditations
-        });
-    } catch (error) {
-        return errorResponse(res, error.message, 500);
-    }
-};
 
 
 exports.getWhySimadData = async (req, res) => {
@@ -104,7 +88,6 @@ exports.getAccreditationsData = async (req, res) => {
 
 
 
-
 exports.getUniVisionAndMission = async (req, res) => {
     try {
         const university = await University.findOne({}).select("description");
@@ -147,5 +130,48 @@ exports.getUniVisionAndMission = async (req, res) => {
             success: false,
             message: error.message,
         });
+    }
+};
+
+
+// Helper to convert numbers to "x.xk+" format
+function formatCount(num) {
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'k+';
+    }
+    return num.toString();
+}
+
+exports.getSimadInNumbers = async (req, res) => {
+    try {
+        const university = await University.findOne({});
+        if (!university) {
+            return errorResponse(res, 'University data not found', 404);
+        }
+
+        const totalCurrentStudents = formatCount(university.stats.students || 0);
+        const totalAlumniStudents = formatCount(university.stats.alumni || 0);
+        const totalLabs = university.stats.labs || "15+";
+        const totalCampuses = university.stats.campuses || "2";
+
+        const schoolsNumberRaw = await School.countDocuments({});
+        const programsNumberRaw = await Program.countDocuments({});
+        const partnersNumberRaw = await Partner.countDocuments({});
+
+        const schoolsNumber = schoolsNumberRaw + '+';
+        const programsNumber = programsNumberRaw + '+';
+        const partnersNumber = partnersNumberRaw + '+';
+
+        return successResponse(res, {
+            totalCurrentStudents,
+            totalAlumniStudents,
+            totalLabs,
+            totalCampuses,
+            schoolsNumber,
+            programsNumber,
+            partnersNumber
+        }, 'SIMAD in Numbers fetched successfully');
+    } catch (error) {
+        return errorResponse(res, error.message, 500);
     }
 };
