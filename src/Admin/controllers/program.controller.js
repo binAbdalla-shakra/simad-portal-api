@@ -134,6 +134,10 @@ exports.deleteProgram = async (req, res) => {
             return errorResponse(res, 'Program not found', 404);
         }
 
+        if (program.coverImage) {
+            await deleteFromS3(program.coverImage);
+        }
+
         return successResponse(res, null, 'Program deleted successfully');
     } catch (error) {
         return errorResponse(res, error.message, 500);

@@ -122,6 +122,10 @@ exports.deletePartner = async (req, res) => {
     try {
         const partner = await Partner.findByIdAndDelete(req.params.id);
         if (!partner) return errorResponse(res, 'Partner not found', 404);
+
+        if (partner.logo) {
+            await deleteFromS3(partner.logo);
+        }
         return successResponse(res, null, "Partner deleted successfully");
     } catch (error) {
         return errorResponse(res, error.message, 500);

@@ -1,6 +1,7 @@
 const News = require('../../models/news.model');
 const Event = require('../../models/Event.model');
 const { successResponse, errorResponse } = require('../../utils/response');
+const Facility = require('../../models/Facility.model');
 
 
 //  Get active news
@@ -25,6 +26,17 @@ exports.getAllEvents = async (req, res) => {
             .select('title image date duration startTime location description')
             ;
         return successResponse(res, events, 'Events fetched successfully');
+    } catch (error) {
+        return errorResponse(res, error.message, 500);
+    }
+};
+
+
+// get facilities
+exports.getFacilities = async (req, res) => {
+    try {
+        const facilities = await Facility.find().sort({ createdAt: -1 });
+        return successResponse(res, facilities, 'Facilities fetched successfully');
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }

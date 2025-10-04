@@ -163,6 +163,15 @@ exports.deleteSchool = async (req, res) => {
             return errorResponse(res, 'School not found', 404);
         }
 
+        // Delete associated image from S3
+        if (school.coverImage) {
+            await deleteFromS3(school.coverImage);
+        }
+        if (school.logoUrl) {
+            await deleteFromS3(school.logoUrl);
+        }
+
+
         return successResponse(res, null, 'School deleted successfully');
     } catch (error) {
         return errorResponse(res, error.message, 500);

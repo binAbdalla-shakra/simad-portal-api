@@ -17,6 +17,8 @@ router.use('/staffs', require('./staff.routes'));
 router.use('/partners', require('./partners.routes'));
 
 router.use('/updates', require('./updates.routes'));
+router.use('/facilities', require('./facilities.routes'));
+
 
 
 

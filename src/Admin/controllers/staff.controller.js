@@ -131,6 +131,11 @@ exports.deleteStaff = async (req, res) => {
             return errorResponse(res, 'Staff member not found', 404);
         }
 
+        // Delete associated image from S3
+        if (staff.photoUrl) {
+            await deleteFromS3(staff.photoUrl);
+        }
+
         return successResponse(res, null, 'Staff member deleted successfully');
     } catch (error) {
         return errorResponse(res, error.message, 500);

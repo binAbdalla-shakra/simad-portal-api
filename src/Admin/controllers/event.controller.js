@@ -100,6 +100,9 @@ exports.deleteEvent = async (req, res) => {
     try {
         const event = await Event.findByIdAndDelete(req.params.id);
         if (!event) return errorResponse(res, 'Event not found', 404);
+        if (event.image) {
+            await deleteFromS3(event.image);
+        }
         return successResponse(res, null, 'Event deleted successfully');
     } catch (error) {
         return errorResponse(res, error.message, 500);

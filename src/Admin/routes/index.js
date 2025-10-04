@@ -57,6 +57,9 @@ router.use('/partners', require('./partners.routes'));
 router.use('/events', require('./event.routes'));
 router.use('/news', require('./news.routes'));
 
+router.use('/facilities', require('./facility.routes'));
+
+
 
 
 

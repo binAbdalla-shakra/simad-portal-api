@@ -103,6 +103,9 @@ exports.deleteNews = async (req, res) => {
     try {
         const news = await News.findByIdAndDelete(req.params.id);
         if (!news) return errorResponse(res, 'News not found', 404);
+        if (news.image) {
+            await deleteFromS3(news.image);
+        }
         return successResponse(res, news, 'News deleted successfully');
     } catch (error) {
         return errorResponse(res, error.message);
