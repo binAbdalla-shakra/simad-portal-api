@@ -8,9 +8,10 @@ const { successResponse, errorResponse } = require('../../utils/response');
 // getSchoolsByCategoryID
 exports.getSchoolsByCategoryID = async (req, res) => {
     try {
-        const { category } = req.params;
+        const { id: categoryId } = req.params;
 
-        const schools = await School.find(category)
+
+        const schools = await School.find({ category: categoryId })
             .sort({ order: 1 }).select('name logoUrl');
 
         return successResponse(res, { schools });
