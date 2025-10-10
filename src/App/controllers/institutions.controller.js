@@ -1,0 +1,50 @@
+const { successResponse, errorResponse } = require('../../utils/response');
+
+
+
+exports.getinstiutionsStaticInfo = async (req, res) => {
+    try {
+        const instituionsSummary = [
+            {
+                id: '1',
+                name: 'Center for Graduate Studies',
+                image: 'https://gs.simad.edu.so/wp-content/uploads/2025/08/SU_Faculty_Marks_GS_-01-1536x718.png',
+                description: 'A hub for advanced academic programs, research, and postgraduate education excellence.'
+            },
+            {
+                id: '2',
+                name: 'SIMAD Innovation Lab',
+                image: 'https://ilab.simad.edu.so/ilabLogo.svg',
+                description: 'A creative space fostering innovation, entrepreneurship, and technology-driven solutions.'
+            },
+            {
+                id: '3',
+                name: 'SIMAD Fabrication Lab',
+                image: '../assets/images/smartclasses.jpg',
+                description: 'A hands-on maker space equipped with tools for prototyping, design, and digital fabrication.'
+            },
+            {
+                id: '4',
+                name: 'Institute of Modern Languages (IML)',
+                image: 'https://iml.simad.edu.so/wp-content/uploads/2025/05/SU_Center_Mark_IML_-01.png',
+                description: 'Dedicated to teaching and promoting foreign languages, translation, and intercultural studies.'
+            },
+            {
+                id: '5',
+                name: 'Research Center',
+                image: '../assets/images/smartclasses.jpg',
+                description: 'Conducts multidisciplinary research projects contributing to knowledge and innovation.'
+            },
+            {
+                id: '6',
+                name: 'Smart Classes',
+                image: '../assets/images/smartclasses.jpg',
+                description: 'Modern digital classrooms integrating technology to enhance the learning experience.'
+            },
+        ];
+
+        return successResponse(res, { instituionsSummary });
+    } catch (error) {
+        return errorResponse(res, error.message, 500);
+    }
+};

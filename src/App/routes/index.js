@@ -20,6 +20,7 @@ router.use('/updates', require('./updates.routes'));
 router.use('/facilities', require('./facilities.routes'));
 
 
+router.use('/institutions', require('./institution.routes'));
 
 
 
