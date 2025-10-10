@@ -32,7 +32,7 @@ exports.getinstiutionsStaticInfo = async (req, res) => {
             {
                 id: '5',
                 name: 'Research Center',
-                image: '../assets/images/smartclasses.jpg',
+                image: 'https://simad.edu.so/_next/image?url=https%3A%2F%2Fdirectus.simad.edu.so%2Fassets%2F34110e56-d354-4e32-a746-c0b89e4d2e4d&w=384&q=75',
                 description: 'Conducts multidisciplinary research projects contributing to knowledge and innovation.'
             },
             {
