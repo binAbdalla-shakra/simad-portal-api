@@ -14,13 +14,13 @@ exports.getinstiutionsStaticInfo = async (req, res) => {
             {
                 id: '2',
                 name: 'SIMAD Innovation Lab',
-                image: 'https://ilab.simad.edu.so/ilabLogo.svg',
+                image: 'https://simad.edu.so/_next/image?url=https%3A%2F%2Fdirectus.simad.edu.so%2Fassets%2Fb7090290-5877-4518-adfd-2e650d6b1d29&w=384&q=75',
                 description: 'A creative space fostering innovation, entrepreneurship, and technology-driven solutions.'
             },
             {
                 id: '3',
                 name: 'SIMAD Fabrication Lab',
-                image: '../assets/images/smartclasses.jpg',
+                image: 'https://simad.edu.so/_next/image?url=https%3A%2F%2Fdirectus.simad.edu.so%2Fassets%2Fb6bcdb40-5ba0-4fb4-8b00-f04f258f3523&w=384&q=75',
                 description: 'A hands-on maker space equipped with tools for prototyping, design, and digital fabrication.'
             },
             {
