@@ -1,5 +1,5 @@
 const Partner = require('../../models/partners.model');
-const { uploadToS3 } = require('../../service/upload.service');
+const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
 const { successResponse, errorResponse } = require('../../utils/response');
 
 // Create Partner
