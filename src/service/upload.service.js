@@ -74,7 +74,7 @@ exports.deleteFromS3 = async (url) => {
 
         const command = new DeleteObjectCommand(deleteParams);
         await s3Client.send(command);
-        console.log('File deleted from S3:', key);
+        // console.log('File deleted from S3:', key);
     } catch (error) {
         console.error('Error deleting file from S3:', error);
     }

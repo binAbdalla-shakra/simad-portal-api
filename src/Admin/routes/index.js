@@ -46,8 +46,7 @@ router.use('/schools', require('./school.routes'));
 router.use('/departments', require('./department.routes'));
 router.use('/programs', require('./program.routes'));
 router.use('/staffs', require('./staff.routes'));
-
-
+router.use('/institutions', require('./institution.routes'));
 
 
 router.use('/partner-categories', require('./partnerCategory.routes'));

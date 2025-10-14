@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const {
-    getinstiutionsStaticInfo
+    getInstitutionsSummary,
+    getInstitutionInfo
 } = require('../controllers/institutions.controller');
 
-router.get('/', getinstiutionsStaticInfo);
+router.get('/summary', getInstitutionsSummary);
+
+router.get('/:identifier', getInstitutionInfo);
+
 
 module.exports = router;
