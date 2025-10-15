@@ -175,3 +175,28 @@ exports.getSimadInNumbers = async (req, res) => {
         return errorResponse(res, error.message, 500);
     }
 };
+
+
+
+
+exports.getAboutSimad = async (req, res) => {
+    try {
+        const university = await University.findOne().select(
+            'name slug type founded motto address contact academics logo backgroundImage about_simad socialMedia'
+        );
+
+        if (!university) {
+            return errorResponse(res, 'SIMAD University data not found', 404);
+        }
+
+        return successResponse(
+            res,
+            { university },
+            'About SIMAD University fetched successfully'
+        );
+
+    } catch (error) {
+        return errorResponse(res, error.message, 500);
+    }
+};
+

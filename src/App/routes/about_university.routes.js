@@ -8,7 +8,8 @@ const {
     getHistoryAwardData,
     getAccreditationsData,
     getUniVisionAndMission,
-    getSimadInNumbers
+    getSimadInNumbers,
+    getAboutSimad
 } = require('../controllers/about_university.controller');
 
 
@@ -22,6 +23,7 @@ router.get('/getAccreditationsData', getAccreditationsData);
 router.get('/getUniVisionAndMission', getUniVisionAndMission);
 router.get('/stats', getSimadInNumbers);
 
+router.get('/about-simad', getAboutSimad);
 
 
 module.exports = router;
