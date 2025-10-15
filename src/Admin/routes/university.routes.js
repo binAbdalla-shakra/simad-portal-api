@@ -1,14 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const {
-    getUniversityInfo,
-    updateUniversity
+    getAllUniversities,
+    createOrUpdateUniversity,
+    deleteUniversity,
+    getUniversityById
 } = require('../controllers/university.controller');
+const { uploadUniversityProfileImages } = require('../../middlewares/upload.middleware');
 
 // GET /api/university - Get university information
-router.get('/', getUniversityInfo);
+router.get('/', getAllUniversities);
 
 // PUT /api/university - Update university information
-router.put('/', updateUniversity);
+router.post('/',);
+router.post('/', uploadUniversityProfileImages, createOrUpdateUniversity);
+
+router.delete('/:id', deleteUniversity);
+router.get('/:id', getUniversityById);
 
 module.exports = router;

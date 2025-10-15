@@ -1,28 +1,87 @@
 const History = require('../../models/History.model');
 const { successResponse, errorResponse } = require('../../utils/response');
 
-// Get all history items
-exports.getHistoryItems = async (req, res) => {
+// Create or Update History Entry
+exports.createOrUpdateHistory = async (req, res) => {
     try {
-        const items = await History.find({ isActive: true }).sort({ order: 1 });
-        return successResponse(res, { items });
+        const { _id } = req.body;
+
+        const historyData = {
+            ...req.body,
+        };
+
+        delete historyData._id;
+
+        let existingEntry;
+
+        if (_id) {
+            existingEntry = await History.findById(_id);
+            if (!existingEntry) {
+                return errorResponse(res, 'History entry not found for update', 404);
+            }
+        }
+
+        let resultHistory;
+
+        if (_id) {
+            resultHistory = await History.findByIdAndUpdate(
+                _id,
+                {
+                    ...historyData,
+                    updatedAt: new Date()
+                },
+                {
+                    new: true,
+                    runValidators: true,
+                    context: 'query'
+                }
+            );
+        } else {
+            const newHistory = new History(historyData);
+            resultHistory = await newHistory.save();
+        }
+
+        const message = _id
+            ? 'History entry updated successfully'
+            : 'History entry created successfully';
+
+        const statusCode = _id ? 200 : 201;
+
+        return successResponse(res, { history: resultHistory }, message, statusCode);
+
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }
 };
 
-// Create or update history items in bulk
-exports.updateHistoryItems = async (req, res) => {
+// Get All History Entries
+exports.getAllHistory = async (req, res) => {
     try {
-        const { items } = req.body;
+        const history = await History.find().sort({ order: 1 });
+        return successResponse(res, { history }, 'History entries fetched successfully');
+    } catch (error) {
+        return errorResponse(res, error.message, 500);
+    }
+};
 
-        // Delete all existing items
-        await History.deleteMany({});
+// Get History Entry by ID
+exports.getHistoryById = async (req, res) => {
+    try {
+        const entry = await History.findById(req.params.id);
+        if (!entry) return errorResponse(res, 'History entry not found', 404);
+        return successResponse(res, entry, 'History entry fetched successfully');
+    } catch (error) {
+        return errorResponse(res, error.message, 500);
+    }
+};
 
-        // Insert new items
-        const newItems = await History.insertMany(items);
+// Delete History Entry
+exports.deleteHistory = async (req, res) => {
+    try {
+        const entry = await History.findByIdAndDelete(req.params.id);
+        if (!entry) return errorResponse(res, 'History entry not found', 404);
 
-        return successResponse(res, { items: newItems }, 'History items updated successfully');
+        return successResponse(res, null, 'History entry deleted successfully');
     } catch (error) {
         return errorResponse(res, error.message, 500);
     }

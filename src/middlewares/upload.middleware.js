@@ -15,3 +15,9 @@ exports.uploadInstitutionImages = upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'coverImage', maxCount: 1 }
 ]);
+
+
+exports.uploadUniversityProfileImages = upload.fields([
+    { name: 'logo', maxCount: 1 },
+    { name: 'backgroundImage', maxCount: 1 }
+]);

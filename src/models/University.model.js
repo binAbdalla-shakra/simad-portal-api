@@ -55,6 +55,7 @@ const universitySchema = new mongoose.Schema({
         type: String,
         default: 'university-bg-default.jpg'
     },
+    about_simad: String,
     stats: {
         students: {
             type: Number,
@@ -64,7 +65,11 @@ const universitySchema = new mongoose.Schema({
             type: Number,
             default: 0
         },
-        faculties: {
+        labs: {
+            type: Number,
+            default: 0
+        },
+        campuses: {
             type: Number,
             default: 0
         }
@@ -72,7 +77,6 @@ const universitySchema = new mongoose.Schema({
     description: {
         mission: String,
         vision: String,
-        history: String,
         guiding_principles: String,
         core_values: String,
     },
@@ -81,7 +85,8 @@ const universitySchema = new mongoose.Schema({
         twitter: String,
         linkedin: String,
         instagram: String,
-        youtube: String
+        youtube: String,
+        tiktok: String,
     },
     isActive: {
         type: Boolean,
@@ -89,15 +94,7 @@ const universitySchema = new mongoose.Schema({
     }
 }, {
     timestamps: true,
-    toJSON: {
-        virtuals: true,
-        transform: function (doc, ret) {
-            ret.id = ret._id;
-            delete ret._id;
-            delete ret.__v;
-            return ret;
-        }
-    }
+
 });
 
 

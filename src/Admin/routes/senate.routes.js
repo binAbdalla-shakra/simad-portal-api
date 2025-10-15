@@ -1,14 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const {
-    getSenateMembers,
-    updateSenateMembers
+    getAllSenates,
+    createOrUpdateSenate,
+    deleteSenate,
+    getSenateById
 } = require('../controllers/senate.controller');
+const { uploadFile } = require('../../middlewares/upload.middleware');
 
 // GET /api/senate - Get all senate members
-router.get('/', getSenateMembers);
+router.get('/', getAllSenates);
 
 // PUT /api/senate - Update senate members
-router.put('/', updateSenateMembers);
+router.post('/', uploadFile('image'), createOrUpdateSenate);
 
+router.delete('/:id', deleteSenate);
+router.get('/:id', getSenateById);
 module.exports = router;

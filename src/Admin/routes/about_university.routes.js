@@ -10,6 +10,6 @@ const {
 router.get('/', getAllUniversityData);
 
 // PUT /about-university - Update all university data
-router.post('/', updateAllUniversityData);
+// router.post('/', updateAllUniversityData);
 
 module.exports = router;
