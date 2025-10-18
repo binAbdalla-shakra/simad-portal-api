@@ -99,32 +99,18 @@ exports.getUniVisionAndMission = async (req, res) => {
         const { mission, vision, guiding_principles, core_values } =
             university.description;
 
-        // Helper function to extract text & points from HTML
-        const parseSection = (html) => {
-            const $ = cheerio.load(html || "");
-            const text = $("p")
-                .map((_, el) => $(el).text().trim())
-                .get()
-                .join(" ");
-            const points = $("li")
-                .map((_, el) => $(el).text().trim())
-                .get();
-            return { text: text || null, points };
-        };
 
         const responseData = {
-            vision: cheerio.load(vision || "")("p").text().trim(),
-            mission: parseSection(mission),
-            guidingPrinciples: parseSection(guiding_principles),
-            coreValues: parseSection(core_values),
+            vision: vision,
+            mission: mission,
+            guidingPrinciples: guiding_principles,
+            coreValues: core_values,
         };
 
-        return res.json({
-            statusCode: 200,
-            data: responseData,
-            message: "Success",
-            success: true,
+        return successResponse(res, {
+            responseData
         });
+
     } catch (error) {
         return res.status(500).json({
             success: false,
