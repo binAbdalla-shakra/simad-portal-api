@@ -100,15 +100,13 @@ exports.getUniVisionAndMission = async (req, res) => {
             university.description;
 
 
-        const responseData = {
+
+
+        return successResponse(res, {
             vision: vision,
             mission: mission,
             guidingPrinciples: guiding_principles,
             coreValues: core_values,
-        };
-
-        return successResponse(res, {
-            responseData
         });
 
     } catch (error) {
