@@ -24,5 +24,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: |
-        touch .env 
-        echo ${{ secrets.SIMAD_PROD_BACKEND_ENV }}
+        cat <<'EOF' > .env
+        ${{ secrets.SIMAD_PROD_BACKEND_ENV }}
+        EOF
+
