@@ -1,5 +1,6 @@
 const Testimonial = require('../models/Testimonial.model');
 const { successResponse, errorResponse } = require('../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Get all testimonials with optional filtering
 exports.getAllTestimonials = async (req, res) => {
@@ -23,7 +24,7 @@ exports.getAllTestimonials = async (req, res) => {
 
         return successResponse(res, { testimonials });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -41,7 +42,7 @@ exports.getTestimonialById = async (req, res) => {
 
         return successResponse(res, { testimonial });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -57,7 +58,7 @@ exports.createTestimonial = async (req, res) => {
 
         return successResponse(res, { testimonial: newTestimonial }, 'Testimonial created successfully', 201);
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -80,7 +81,7 @@ exports.updateTestimonial = async (req, res) => {
 
         return successResponse(res, { testimonial: updatedTestimonial }, 'Testimonial updated successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -99,7 +100,7 @@ exports.deleteTestimonial = async (req, res) => {
 
         return successResponse(res, null, 'Testimonial deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -119,7 +120,7 @@ exports.getFeaturedTestimonials = async (req, res) => {
 
         return successResponse(res, { testimonials });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -138,7 +139,7 @@ exports.getTestimonialsByProgram = async (req, res) => {
 
         return successResponse(res, { testimonials });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -160,6 +161,6 @@ exports.toggleFeatured = async (req, res) => {
             message: `Testimonial ${testimonial.isFeatured ? 'featured' : 'unfeatured'} successfully`
         });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

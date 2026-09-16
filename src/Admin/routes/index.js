@@ -10,6 +10,9 @@ const universityRoutes = require('./university.routes');
 
 router.use('/users', userRoutes);
 router.use('/roles', roleRoutes);
+router.use('/dashboard', require('./dashboard.routes'));
+router.use('/reports', require('./reports.routes'));
+router.use('/menus', require('./menu.routes'));
 
 
 

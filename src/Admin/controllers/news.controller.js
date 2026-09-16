@@ -1,6 +1,7 @@
 const News = require('../../models/news.model');
 const { successResponse, errorResponse } = require('../../utils/response');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
+const { getReadableMessage } = require('../../utils/error-messages');
 exports.createOrUpdateNews = async (req, res) => {
     try {
         const { _id } = req.body;
@@ -72,7 +73,7 @@ exports.createOrUpdateNews = async (req, res) => {
         return successResponse(res, { news: resultNews }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -82,7 +83,7 @@ exports.getAllNews = async (req, res) => {
         const news = await News.find().sort({ date: -1 });
         return successResponse(res, { news }, 'News fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message);
+        return errorResponse(res, getReadableMessage(error));
     }
 };
 
@@ -93,7 +94,7 @@ exports.getNewsById = async (req, res) => {
         if (!news) return errorResponse(res, 'News not found', 404);
         return successResponse(res, news, 'News fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message);
+        return errorResponse(res, getReadableMessage(error));
     }
 };
 
@@ -108,6 +109,6 @@ exports.deleteNews = async (req, res) => {
         }
         return successResponse(res, news, 'News deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message);
+        return errorResponse(res, getReadableMessage(error));
     }
 };

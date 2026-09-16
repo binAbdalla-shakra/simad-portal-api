@@ -1,6 +1,6 @@
 const User = require('../../../models/User.model');
 const { ApiError } = require('../../../utils/error-handler');
-const { generateAccessToken, generateRefreshToken } = require('../../../utils/tokens');
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../../../utils/tokens');
 const bcrypt = require('bcryptjs');
 
 class AuthService {
@@ -11,22 +11,6 @@ class AuthService {
     }
 
     async login(username, password) {
-        // Check for static user first
-        if (username === "WLLKA" && password === "452020") {
-            return {
-                user: {
-                    _id: "SUPER-ADMIN",
-                    username: "WLLKA",
-                    name: "Static Admin",
-                    role: "superadmin",
-                    lastLogin: new Date()
-                },
-                accessToken: generateAccessToken({
-                    id: 'SUPER-ADMIN',
-                    username: 'WLLKA'
-                })
-            };
-        }
         const user = await User.findOne({ username });
         if (!user || !(await user.comparePassword(password))) {
             throw new Error('Incorrect username or password');
@@ -47,24 +31,39 @@ class AuthService {
         return { user, accessToken, refreshToken };
     }
 
-    // async refreshAccessToken(refreshToken) {
-    //     const user = await User.findOne({ refreshToken });
-    //     if (!user) {
-    //         throw new Error('Invalid refresh token');
-    //     }
+    async refreshAccessToken(refreshToken) {
+        if (!refreshToken) {
+            throw new ApiError(401, 'Refresh token missing');
+        }
 
-    //     const accessToken = generateAccessToken({
-    //         id: user._id,
-    //         username: user.username,
-    //         roles: user.roles
-    //     });
+        let decoded;
+        try {
+            decoded = verifyRefreshToken(refreshToken);
+        } catch (error) {
+            throw new ApiError(401, 'Invalid or expired refresh token');
+        }
 
-    //     return { accessToken };
-    // }
+        const user = await User.findById(decoded.id);
+        if (!user || user.refreshToken !== refreshToken) {
+            throw new ApiError(401, 'Refresh token revoked or unrecognized');
+        }
 
-    // async logout(userId) {
-    //     await User.findByIdAndUpdate(userId, { refreshToken: null });
-    // }
+        const accessToken = generateAccessToken({
+            id: user._id,
+            username: user.username,
+            roles: user.roles
+        });
+        const newRefreshToken = generateRefreshToken({ id: user._id });
+
+        user.refreshToken = newRefreshToken;
+        await user.save();
+
+        return { accessToken, refreshToken: newRefreshToken };
+    }
+
+    async logout(userId) {
+        await User.findByIdAndUpdate(userId, { refreshToken: null });
+    }
 
     async changePassword(userId, currentPassword, newPassword) {
         const user = await User.findById(userId);

@@ -1,6 +1,7 @@
 const Staff = require('../../models/Staff.model');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Get all staff members with optional filtering
 exports.getAllStaff = async (req, res) => {
@@ -11,7 +12,7 @@ exports.getAllStaff = async (req, res) => {
 
         return successResponse(res, { staff });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -27,7 +28,7 @@ exports.getStaffById = async (req, res) => {
 
         return successResponse(res, { staff });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -115,7 +116,7 @@ exports.createOrUpdateStaff = async (req, res) => {
 
     } catch (error) {
         console.log("error", error);
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -138,7 +139,7 @@ exports.deleteStaff = async (req, res) => {
 
         return successResponse(res, null, 'Staff member deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 

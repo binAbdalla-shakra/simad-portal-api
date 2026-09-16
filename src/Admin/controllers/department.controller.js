@@ -1,5 +1,6 @@
 const Department = require('../../models/Department.model');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Get all departments
 exports.getAllDepartments = async (req, res) => {
@@ -16,7 +17,7 @@ exports.getAllDepartments = async (req, res) => {
 
         return successResponse(res, { departments });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -34,7 +35,7 @@ exports.getDepartmentById = async (req, res) => {
 
         return successResponse(res, { department });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -61,7 +62,7 @@ exports.createDepartment = async (req, res) => {
 
         return successResponse(res, { department: newDepartment }, 'Department created successfully', 201);
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -102,7 +103,7 @@ exports.updateDepartment = async (req, res) => {
 
         return successResponse(res, { department: updatedDepartment }, 'Department updated successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -118,7 +119,7 @@ exports.deleteDepartment = async (req, res) => {
 
         return successResponse(res, null, 'Department deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 

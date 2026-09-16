@@ -1,12 +1,13 @@
 const { ApiError } = require('../utils/error-handler');
 const { errorResponse } = require('../utils/response');
+const { getReadableMessage } = require('../utils/error-messages');
 
 const errorHandler = (err, req, res, next) => {
     let error = err;
 
     if (!(error instanceof ApiError)) {
-        const statusCode = error.statusCode || 500;
-        const message = error.message || 'Internal Server Error';
+        const statusCode = error.statusCode || (error.name === 'ValidationError' || error.name === 'CastError' ? 400 : 500);
+        const message = getReadableMessage(error);
         error = new ApiError(statusCode, message);
     }
 

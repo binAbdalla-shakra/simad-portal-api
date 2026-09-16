@@ -1,6 +1,7 @@
 const WhySimad = require('../../models/WhySimad.model');
 const { successResponse, errorResponse } = require('../../utils/response');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Create or Update WhySimad
 exports.createOrUpdateWhySimad = async (req, res) => {
@@ -69,7 +70,7 @@ exports.createOrUpdateWhySimad = async (req, res) => {
         return successResponse(res, { whySimad: result }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -79,7 +80,7 @@ exports.getAllWhySimad = async (req, res) => {
         const entries = await WhySimad.find().sort({ order: 1 });
         return successResponse(res, { reasons: entries }, 'WhySimad entries fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -90,7 +91,7 @@ exports.getWhySimadById = async (req, res) => {
         if (!entry) return errorResponse(res, 'WhySimad entry not found', 404);
         return successResponse(res, entry, 'WhySimad entry fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -106,6 +107,6 @@ exports.deleteWhySimad = async (req, res) => {
 
         return successResponse(res, null, 'WhySimad entry deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

@@ -1,5 +1,6 @@
 const Role = require('../../models/Role.model');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Create Role
 exports.createRole = async (req, res) => {
@@ -20,7 +21,7 @@ exports.createRole = async (req, res) => {
 
         return successResponse(res, { role: newRole }, 'Role created successfully', 201);
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -31,7 +32,7 @@ exports.getAllRoles = async (req, res) => {
         return successResponse(res, { roles });
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -67,7 +68,7 @@ exports.updateRole = async (req, res) => {
 
         return successResponse(res, { role: updatedRole }, 'Role updated successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -80,7 +81,7 @@ exports.deleteRole = async (req, res) => {
         }
         return successResponse(res, null, 'Role deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 

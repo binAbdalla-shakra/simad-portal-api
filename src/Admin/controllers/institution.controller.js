@@ -1,6 +1,7 @@
 const Institution = require('../../models/Instituion.model');
 const { successResponse, errorResponse } = require('../../utils/response');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Create or Update Institution
 exports.createOrUpdateInstitution = async (req, res) => {
@@ -87,7 +88,7 @@ exports.createOrUpdateInstitution = async (req, res) => {
         return successResponse(res, { institution: resultInstitution }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -97,7 +98,7 @@ exports.getAllInstitutions = async (req, res) => {
         const institutions = await Institution.find().sort({ createdAt: -1 });
         return successResponse(res, { institutions }, 'Institutions fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -108,7 +109,7 @@ exports.getInstitutionById = async (req, res) => {
         if (!institution) return errorResponse(res, 'Institution not found', 404);
         return successResponse(res, institution, 'Institution fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -125,6 +126,6 @@ exports.deleteInstitution = async (req, res) => {
 
         return successResponse(res, null, 'Institution deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

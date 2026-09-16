@@ -1,6 +1,7 @@
 const Partner = require('../../models/partners.model');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Create Partner
 exports.createorUpdatePartner = async (req, res) => {
@@ -79,7 +80,7 @@ exports.createorUpdatePartner = async (req, res) => {
         return successResponse(res, { partner: resultPartner }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -91,7 +92,7 @@ exports.getPartners = async (req, res) => {
         const partners = await Partner.find().populate('category');
         return successResponse(res, { partners });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -102,7 +103,7 @@ exports.getPartnerById = async (req, res) => {
         if (!partner) return errorResponse(res, 'Partner not found', 404);
         return successResponse(res, { partner });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -113,7 +114,7 @@ exports.updatePartner = async (req, res) => {
         if (!partner) return errorResponse(res, 'Partner not found', 404);
         return successResponse(res, { partner });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -128,6 +129,6 @@ exports.deletePartner = async (req, res) => {
         }
         return successResponse(res, null, "Partner deleted successfully");
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

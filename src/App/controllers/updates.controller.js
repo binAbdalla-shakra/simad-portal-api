@@ -17,11 +17,12 @@ exports.getActiveNews = async (req, res) => {
     }
 };
 
-
+const startOfToday = new Date();
+startOfToday.setUTCHours(0, 0, 0, 0);
 // Get active events
 exports.getAllEvents = async (req, res) => {
     try {
-        const events = await Event.find({ date: { $gte: new Date() } })
+        const events = await Event.find({ date: { $gte: startOfToday } })
             .sort({ date: 1 })
             .select('title image date duration startTime location description')
             ;

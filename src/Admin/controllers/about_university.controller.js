@@ -4,6 +4,7 @@ const History = require('../../models/History.model');
 const Senate = require('../../models/Senate.model');
 const Accreditation = require('../../models/Accreditation.model');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 // Get all university data
 exports.getAllUniversityData = async (req, res) => {
     try {
@@ -21,6 +22,6 @@ exports.getAllUniversityData = async (req, res) => {
             accreditations
         });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

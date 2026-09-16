@@ -2,6 +2,7 @@
 const School = require('../../models/school.model');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Get all schools
 exports.getAllSchools = async (req, res) => {
@@ -14,7 +15,7 @@ exports.getAllSchools = async (req, res) => {
 
         return successResponse(res, { schools });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -32,7 +33,7 @@ exports.getSchoolById = async (req, res) => {
 
         return successResponse(res, { school });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -146,7 +147,7 @@ exports.createOrUpdateSchool = async (req, res) => {
         return successResponse(res, { school: resultSchool }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -174,6 +175,6 @@ exports.deleteSchool = async (req, res) => {
 
         return successResponse(res, null, 'School deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

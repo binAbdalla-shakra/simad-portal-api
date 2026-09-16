@@ -1,6 +1,7 @@
 const Event = require('../../models/Event.model');
 const { successResponse, errorResponse } = require('../../utils/response');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
+const { getReadableMessage } = require('../../utils/error-messages');
 exports.createOrUpdateEvent = async (req, res) => {
     try {
         const { _id } = req.body;
@@ -70,7 +71,7 @@ exports.createOrUpdateEvent = async (req, res) => {
         return successResponse(res, { event: resultEvent }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -80,7 +81,7 @@ exports.getAllEvents = async (req, res) => {
         const events = await Event.find().sort({ date: 1 });
         return successResponse(res, { events }, 'Events fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -91,7 +92,7 @@ exports.getEventById = async (req, res) => {
         if (!event) return errorResponse(res, 'Event not found', 404);
         return successResponse(res, event, 'Event fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -105,6 +106,6 @@ exports.deleteEvent = async (req, res) => {
         }
         return successResponse(res, null, 'Event deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

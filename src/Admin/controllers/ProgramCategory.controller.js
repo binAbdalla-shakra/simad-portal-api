@@ -1,5 +1,6 @@
 const ProgramCategory = require('../../models/ProgramCategory.model');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Get all program categories
 exports.getAllCategories = async (req, res) => {
@@ -7,7 +8,7 @@ exports.getAllCategories = async (req, res) => {
         const categories = await ProgramCategory.find({}).sort({ order: 1 });
         return successResponse(res, { categories });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -24,7 +25,7 @@ exports.getCategoryById = async (req, res) => {
 
         return successResponse(res, { category });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -48,7 +49,7 @@ exports.createCategory = async (req, res) => {
 
         return successResponse(res, { category: newCategory }, 'Category created successfully', 201);
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -84,7 +85,7 @@ exports.updateCategory = async (req, res) => {
 
         return successResponse(res, { category: updatedCategory }, 'Category updated successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -102,7 +103,7 @@ exports.deleteCategory = async (req, res) => {
 
         return successResponse(res, null, 'Category deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 

@@ -1,6 +1,7 @@
 const Accreditation = require('../../models/Accreditation.model');
 const { successResponse, errorResponse } = require('../../utils/response');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Create or Update Accreditation
 exports.createOrUpdateAccreditation = async (req, res) => {
@@ -71,7 +72,7 @@ exports.createOrUpdateAccreditation = async (req, res) => {
         return successResponse(res, { accreditation: resultAccreditation }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -81,7 +82,7 @@ exports.getAllAccreditations = async (req, res) => {
         const accreditations = await Accreditation.find().sort({ order: 1 });
         return successResponse(res, { accreditations }, 'Accreditations fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -92,7 +93,7 @@ exports.getAccreditationById = async (req, res) => {
         if (!accreditation) return errorResponse(res, 'Accreditation not found', 404);
         return successResponse(res, accreditation, 'Accreditation fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -108,6 +109,6 @@ exports.deleteAccreditation = async (req, res) => {
 
         return successResponse(res, null, 'Accreditation deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

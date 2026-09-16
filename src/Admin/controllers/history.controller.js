@@ -1,5 +1,6 @@
 const History = require('../../models/History.model');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Create or Update History Entry
 exports.createOrUpdateHistory = async (req, res) => {
@@ -50,7 +51,7 @@ exports.createOrUpdateHistory = async (req, res) => {
         return successResponse(res, { history: resultHistory }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -60,7 +61,7 @@ exports.getAllHistory = async (req, res) => {
         const history = await History.find().sort({ order: 1 });
         return successResponse(res, { history }, 'History entries fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -71,7 +72,7 @@ exports.getHistoryById = async (req, res) => {
         if (!entry) return errorResponse(res, 'History entry not found', 404);
         return successResponse(res, entry, 'History entry fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -83,6 +84,6 @@ exports.deleteHistory = async (req, res) => {
 
         return successResponse(res, null, 'History entry deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

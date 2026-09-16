@@ -7,17 +7,20 @@ const {
     deleteRole,
     getAllRoles
 } = require('../controllers/role.controller');
+const { authenticate, requirePermission } = require('../../middlewares/auth.middleware');
+
+const guardRoles = [authenticate, requirePermission('/setting-roles')];
 
 // GET /api/accreditations - Get all accreditations
-router.get('/', getAllRoles);
+router.get('/', guardRoles, getAllRoles);
 
-router.post('/', createRole);
+router.post('/', guardRoles, createRole);
 
 
 // PUT /api/accreditations - Update accreditations
-router.put('/:id', updateRole);
+router.put('/:id', guardRoles, updateRole);
 
-router.delete('/:id', deleteRole);
+router.delete('/:id', guardRoles, deleteRole);
 
 // router.get('/:id', getRoleById);
 

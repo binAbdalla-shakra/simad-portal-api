@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./config/db');
 const errorHandler = require("../middlewares/errorHandler")
 require('dotenv').config();
@@ -26,6 +27,7 @@ app.use(cors({
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 const adminApiRoutes = require('./routes/index');
 app.use(process.env.APP_URL_PREFIX, adminApiRoutes);

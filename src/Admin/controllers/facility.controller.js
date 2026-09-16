@@ -1,6 +1,7 @@
 const Facility = require('../../models/Facility.model');
 const { successResponse, errorResponse } = require('../../utils/response');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Create or Update Facility
 exports.createOrUpdateFacility = async (req, res) => {
@@ -70,7 +71,7 @@ exports.createOrUpdateFacility = async (req, res) => {
 
         return successResponse(res, { facility: resultFacility }, message, statusCode);
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -80,7 +81,7 @@ exports.getAllFacilities = async (req, res) => {
         const facilities = await Facility.find().sort({ createdAt: -1 });
         return successResponse(res, { facilities }, 'Facilities fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message);
+        return errorResponse(res, getReadableMessage(error));
     }
 };
 
@@ -91,7 +92,7 @@ exports.getFacilityById = async (req, res) => {
         if (!facility) return errorResponse(res, 'Facility not found', 404);
         return successResponse(res, { facility }, 'Facility fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message);
+        return errorResponse(res, getReadableMessage(error));
     }
 };
 
@@ -108,6 +109,6 @@ exports.deleteFacility = async (req, res) => {
 
         return successResponse(res, { facility }, 'Facility deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message);
+        return errorResponse(res, getReadableMessage(error));
     }
 };

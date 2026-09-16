@@ -1,6 +1,7 @@
 const Program = require('../../models/program.model');
 const { deleteFromS3, uploadToS3 } = require('../../service/upload.service');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Get all programs with optional filtering
 exports.getAllPrograms = async (req, res) => {
@@ -12,7 +13,7 @@ exports.getAllPrograms = async (req, res) => {
 
         return successResponse(res, { programs });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -28,7 +29,7 @@ exports.getProgramById = async (req, res) => {
 
         return successResponse(res, { program });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -119,7 +120,7 @@ exports.createOrUpdateProgram = async (req, res) => {
         return successResponse(res, { program: resultProgram }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -140,6 +141,6 @@ exports.deleteProgram = async (req, res) => {
 
         return successResponse(res, null, 'Program deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

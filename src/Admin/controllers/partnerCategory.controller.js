@@ -1,5 +1,6 @@
 const PartnersCategory = require('../../models/partnersCategory.model');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Create Category
 exports.createCategory = async (req, res) => {
@@ -9,7 +10,7 @@ exports.createCategory = async (req, res) => {
         return successResponse(res, { category }, "Successfully Created Category");
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -19,7 +20,7 @@ exports.getCategories = async (req, res) => {
         const categories = await PartnersCategory.find();
         return successResponse(res, { categories });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -30,7 +31,7 @@ exports.getCategoryById = async (req, res) => {
         if (!category) return errorResponse(res, 'partner category not found', 404);
         return successResponse(res, { category });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -41,7 +42,7 @@ exports.updateCategory = async (req, res) => {
         if (!category) return errorResponse(res, 'partner category not found', 404);
         return successResponse(res, { category }, "Successfully Updated Category");
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -52,6 +53,6 @@ exports.deleteCategory = async (req, res) => {
         if (!category) return errorResponse(res, 'partner category not found', 404);
         return successResponse(res, null, "Category deleted successfully");
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

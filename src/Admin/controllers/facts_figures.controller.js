@@ -1,5 +1,6 @@
 const Fact = require('../models/Fact.model');
 const { successResponse, errorResponse } = require('../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Get all facts with optional filtering
 exports.getAllFacts = async (req, res) => {
@@ -24,7 +25,7 @@ exports.getAllFacts = async (req, res) => {
 
         return successResponse(res, { facts });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -43,7 +44,7 @@ exports.getFactById = async (req, res) => {
 
         return successResponse(res, { fact });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -59,7 +60,7 @@ exports.createFact = async (req, res) => {
 
         return successResponse(res, { fact: newFact }, 'Fact created successfully', 201);
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -82,7 +83,7 @@ exports.updateFact = async (req, res) => {
 
         return successResponse(res, { fact: updatedFact }, 'Fact updated successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -101,7 +102,7 @@ exports.deleteFact = async (req, res) => {
 
         return successResponse(res, null, 'Fact deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -121,7 +122,7 @@ exports.getFactsBySchool = async (req, res) => {
 
         return successResponse(res, { facts });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -141,7 +142,7 @@ exports.getFactsByDepartment = async (req, res) => {
 
         return successResponse(res, { facts });
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -161,6 +162,6 @@ exports.bulkUpdateFacts = async (req, res) => {
 
         return successResponse(res, null, 'Facts order updated successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

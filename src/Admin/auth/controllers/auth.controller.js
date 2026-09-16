@@ -20,17 +20,24 @@ const login = catchAsync(async (req, res) => {
     return successResponse(res, { user, accessToken, status: "success" }, 'Login successful');
 });
 
-// const refreshToken = catchAsync(async (req, res) => {
-//     const { refreshToken } = req.cookies;
-//     const { accessToken } = await authService.refreshAccessToken(refreshToken);
-//     return successResponse(res, { accessToken }, 'Token refreshed successfully');
-// });
+const refreshToken = catchAsync(async (req, res) => {
+    const { refreshToken } = req.cookies;
+    const { accessToken, refreshToken: newRefreshToken } = await authService.refreshAccessToken(refreshToken);
 
-// const logout = catchAsync(async (req, res) => {
-//     await authService.logout(req.user.id);
-//     res.clearCookie('refreshToken');
-//     return successResponse(res, null, 'Logout successful', 204);
-// });
+    res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+    return successResponse(res, { accessToken }, 'Token refreshed successfully');
+});
+
+const logout = catchAsync(async (req, res) => {
+    await authService.logout(req.user.id);
+    res.clearCookie('refreshToken');
+    return successResponse(res, null, 'Logout successful');
+});
 
 const changePassword = catchAsync(async (req, res) => {
     const { userId, currentPassword, newPassword } = req.body;
@@ -66,6 +73,8 @@ const updateUser = catchAsync(async (req, res) => {
 module.exports = {
     register,
     login,
+    refreshToken,
+    logout,
     changePassword,
     getUsers,
     getUserById,

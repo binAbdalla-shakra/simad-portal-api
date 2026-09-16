@@ -1,6 +1,7 @@
 const Senate = require('../../models/Senate.model');
 const { successResponse, errorResponse } = require('../../utils/response');
 const { uploadToS3, deleteFromS3 } = require('../../service/upload.service');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Create or Update Senate
 exports.createOrUpdateSenate = async (req, res) => {
@@ -69,7 +70,7 @@ exports.createOrUpdateSenate = async (req, res) => {
         return successResponse(res, { senate: resultSenate }, message, statusCode);
 
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -79,7 +80,7 @@ exports.getAllSenates = async (req, res) => {
         const senates = await Senate.find().sort({ order: 1 });
         return successResponse(res, { senates }, 'Senate members fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -90,7 +91,7 @@ exports.getSenateById = async (req, res) => {
         if (!senate) return errorResponse(res, 'Senate member not found', 404);
         return successResponse(res, senate, 'Senate member fetched successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
 
@@ -106,6 +107,6 @@ exports.deleteSenate = async (req, res) => {
 
         return successResponse(res, null, 'Senate member deleted successfully');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };

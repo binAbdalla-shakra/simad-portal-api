@@ -1,5 +1,6 @@
 const UploadConfig = require('../../models/UploadConfig.model');
 const { successResponse, errorResponse } = require('../../utils/response');
+const { getReadableMessage } = require('../../utils/error-messages');
 
 // Bulk create default configurations
 exports.createDefaultConfigs = async (req, res) => {
@@ -52,6 +53,6 @@ exports.createDefaultConfigs = async (req, res) => {
 
         return successResponse(res, { results }, 'Default configurations processed');
     } catch (error) {
-        return errorResponse(res, error.message, 500);
+        return errorResponse(res, getReadableMessage(error), 500);
     }
 };
