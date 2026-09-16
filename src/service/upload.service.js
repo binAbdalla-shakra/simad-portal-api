@@ -25,8 +25,8 @@ const storage = multer.memoryStorage();
 exports.upload = multer({
     storage: storage,
     limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB per file
-        fieldSize: 8 * 1024 * 1024, // 8MB per text field (busboy's 1MB default is too small for long rich-text fields)
+        fileSize: 50 * 1024 * 1024, // 50MB per file
+        fieldSize: 50 * 1024 * 1024, // 50MB per text field (busboy's 1MB default is too small for long rich-text fields)
     },
     fileFilter: (req, file, cb) => {
         const allowedTypes = /jpeg|jpg|png|gif|webp/;

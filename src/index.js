@@ -8,6 +8,9 @@ require('dotenv').config();
 const app = express();
 connectDB();
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 app.use(cors());             // <-- This enables CORS for all origins
 app.options('*', cors());    // <-- Enable preflight requests for all routes
 
