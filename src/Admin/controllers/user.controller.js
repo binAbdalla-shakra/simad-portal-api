@@ -4,6 +4,7 @@ const { isSuperAdmin } = require('../../middlewares/auth.middleware');
 // req.user.roles is already populated (with permissions.menu / permissions.subMenus)
 // by the authenticate middleware, so this just needs to flatten it.
 exports.getMyPermissions = async (req, res) => {
+    console.log("sssssssssssssssss", req.user)
     if (isSuperAdmin(req.user)) {
         return successResponse(res, { isSuperAdmin: true, permittedLinks: [] }, 'Permissions fetched successfully');
     }
