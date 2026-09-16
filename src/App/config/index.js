@@ -29,7 +29,6 @@ function buildMongoUri() {
   const credentials = `${encodeURIComponent(process.env.MONGODB_USER)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}`;
   const server = process.env.MONGODB_SERVER;
   const dbName = process.env.MONGODB_DB || 'simad-portal-dev-db';
-  // return 'mongodb://127.0.0.1:27017/simad_portal_api?directConnection=true&serverSelectionTimeoutMS=2000';
-  return 'mongodb+srv://abdi:abdi123@myfirstcluster.8edhtqd.mongodb.net/simad-portal-dev-db?retryWrites=true&w=majority&appName=Cluster0'
-  // return `mongodb://${credentials}@${server}/${dbName}?authSource=${process.env.MONGODB_AUTH_SOURCE || 'admin'}`;
+   
+   return `mongodb://${credentials}@${server}/${dbName}?authSource=${process.env.MONGODB_AUTH_SOURCE || 'admin'}`;
 }
